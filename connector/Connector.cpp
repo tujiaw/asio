@@ -19,6 +19,7 @@ Connector::Connector(QWidget *parent)
 	connect(ui.pbDisconnect, &QPushButton::clicked, this, &Connector::onDisconnect);
 	connect(ui.pbStart, &QPushButton::clicked, this, &Connector::onStart);
 	connect(ui.pbStop, &QPushButton::clicked, this, &Connector::onStop);
+	connect(ui.pbClear, &QPushButton::clicked, this, &Connector::onRecvDataClear);
 	connect(&socket_, SIGNAL(error(QAbstractSocket::SocketError)), this, SLOT(onError(QAbstractSocket::SocketError)));
 	connect(&socket_, &QAbstractSocket::stateChanged, this, &Connector::onStateChanged);
 	connect(&socket_, &QIODevice::readyRead, this, &Connector::onReadyRead);
@@ -83,4 +84,9 @@ void Connector::onReadyRead()
 	ui.lwRecvData->addItem(QString::fromUtf8(data));
 	ui.lwRecvData->setCurrentRow(ui.lwRecvData->count() - 1);
 	qDebug() << "recv length:" << data.size();
+}
+
+void Connector::onRecvDataClear()
+{
+	ui.lwRecvData->clear();
 }

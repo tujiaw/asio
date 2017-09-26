@@ -9,12 +9,21 @@
 #include <memory>
 #include <utility>
 #include <boost/asio.hpp>
+//#include <boost/asio/signal_set.hpp>
+#include <boost/lexical_cast.hpp>
 
 // test
 #include "./addressbook.pb.h"
 #include "./ProtoHelp.h"
 
 using boost::asio::ip::tcp;
+
+std::string endpoint2str(const tcp::endpoint &endpoint)
+{
+	std::string host = endpoint.address().to_string();
+	host += (":" + boost::lexical_cast<std::string>(endpoint.port()));
+	return host;
+}
 
 class session
 	: public std::enable_shared_from_this<session>
@@ -75,6 +84,7 @@ public:
 		: acceptor_(io_service, tcp::endpoint(tcp::v4(), port)),
 		socket_(io_service)
 	{
+		std::cout << "bind:" << endpoint2str(acceptor_.local_endpoint()) << std::endl;
 		do_accept();
 	}
 
@@ -84,43 +94,38 @@ private:
 		acceptor_.async_accept(socket_,
 			[this](boost::system::error_code ec)
 		{
-			if (!ec)
-			{
-				std::make_shared<session>(std::move(socket_))->start();
+			if (!ec) {
+				std::string remoteHost = endpoint2str(socket_.remote_endpoint());
+				std::shared_ptr<session> newSession = std::make_shared<session>(std::move(socket_));
+				sessionList_.push_back(newSession);
+				newSession->start();
+				std::cout << "remote host:" << remoteHost << std::endl;
+			} else {
+				std::cerr << ec.message() << std::endl;
 			}
-			std::cout << "from client" << std::endl;
 			do_accept();
 		});
 	}
 
+	std::vector<std::shared_ptr<session>> sessionList_;
 	tcp::acceptor acceptor_;
 	tcp::socket socket_;
 };
 
 int main(int argc, char* argv[])
 {
-	Test::Hello hello;
-	hello.set_name("tujiaw");
-	hello.set_id(123);
-	hello.set_address("shanghai pudong");
-	std::string str = ProtoHelp::encode(hello);
-	google::protobuf::Message* msg = ProtoHelp::decode(str.substr(4));
-
-
-	system("pause");
-	return 0;
 	try
 	{
-		//if (argc != 2)
-		//{
-		//	std::cerr << "Usage: async_tcp_echo_server <port>\n";
-		//	return 1;
-		//}
-
 		boost::asio::io_service io_service;
+		boost::asio::signal_set signals(io_service, SIGINT, SIGTERM);
+		signals.async_wait([&io_service](const boost::system::error_code& error, int signalNumber) {
+			if (!error) {
+				std::cout << "signals:" << signalNumber << std::endl;
+			}
+			io_service.stop();
+		});
 
 		server s(io_service, 5566);
-
 		io_service.run();
 	}
 	catch (std::exception& e)
@@ -128,5 +133,6 @@ int main(int argc, char* argv[])
 		std::cerr << "Exception: " << e.what() << "\n";
 	}
 
+	system("pause");
 	return 0;
 }

@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'Connector.ui'
 **
-** Created by: Qt User Interface Compiler version 5.3.2
+** Created by: Qt User Interface Compiler version 5.6.3
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
 ********************************************************************************/
@@ -41,7 +41,10 @@ public:
     QPushButton *pbStop;
     QSpacerItem *horizontalSpacer;
     QTextEdit *teSendData;
+    QHBoxLayout *horizontalLayout_3;
     QLabel *label_3;
+    QPushButton *pbClear;
+    QSpacerItem *horizontalSpacer_2;
     QListWidget *lwRecvData;
     QLabel *labelStatus;
 
@@ -110,10 +113,25 @@ public:
 
         verticalLayout->addWidget(teSendData);
 
+        horizontalLayout_3 = new QHBoxLayout();
+        horizontalLayout_3->setSpacing(6);
+        horizontalLayout_3->setObjectName(QStringLiteral("horizontalLayout_3"));
         label_3 = new QLabel(ConnectorClass);
         label_3->setObjectName(QStringLiteral("label_3"));
 
-        verticalLayout->addWidget(label_3);
+        horizontalLayout_3->addWidget(label_3);
+
+        pbClear = new QPushButton(ConnectorClass);
+        pbClear->setObjectName(QStringLiteral("pbClear"));
+
+        horizontalLayout_3->addWidget(pbClear);
+
+        horizontalSpacer_2 = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
+
+        horizontalLayout_3->addItem(horizontalSpacer_2);
+
+
+        verticalLayout->addLayout(horizontalLayout_3);
 
         lwRecvData = new QListWidget(ConnectorClass);
         lwRecvData->setObjectName(QStringLiteral("lwRecvData"));
@@ -133,14 +151,15 @@ public:
 
     void retranslateUi(QDialog *ConnectorClass)
     {
-        ConnectorClass->setWindowTitle(QApplication::translate("ConnectorClass", "Connector", 0));
-        label->setText(QApplication::translate("ConnectorClass", "Address:", 0));
-        pbConnect->setText(QApplication::translate("ConnectorClass", "Connect", 0));
-        pbDisconnect->setText(QApplication::translate("ConnectorClass", "Disconnect", 0));
-        label_2->setText(QApplication::translate("ConnectorClass", "Send data:", 0));
-        pbStart->setText(QApplication::translate("ConnectorClass", "Start", 0));
-        pbStop->setText(QApplication::translate("ConnectorClass", "Stop", 0));
-        label_3->setText(QApplication::translate("ConnectorClass", "Recieve data", 0));
+        ConnectorClass->setWindowTitle(QApplication::translate("ConnectorClass", "Connector", Q_NULLPTR));
+        label->setText(QApplication::translate("ConnectorClass", "Address:", Q_NULLPTR));
+        pbConnect->setText(QApplication::translate("ConnectorClass", "Connect", Q_NULLPTR));
+        pbDisconnect->setText(QApplication::translate("ConnectorClass", "Disconnect", Q_NULLPTR));
+        label_2->setText(QApplication::translate("ConnectorClass", "Send data:", Q_NULLPTR));
+        pbStart->setText(QApplication::translate("ConnectorClass", "Start", Q_NULLPTR));
+        pbStop->setText(QApplication::translate("ConnectorClass", "Stop", Q_NULLPTR));
+        label_3->setText(QApplication::translate("ConnectorClass", "Recieve data", Q_NULLPTR));
+        pbClear->setText(QApplication::translate("ConnectorClass", "Clear", Q_NULLPTR));
         labelStatus->setText(QString());
     } // retranslateUi
 

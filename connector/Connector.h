@@ -17,6 +17,7 @@ public:
 	void onStop();
 	void onStateChanged(QAbstractSocket::SocketState socketState);
 	void onReadyRead();
+	void onRecvDataClear();
 
 public slots:
 	void onError(QAbstractSocket::SocketError socketError);
