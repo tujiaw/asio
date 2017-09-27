@@ -14,14 +14,15 @@ public:
 	~session();
 
 	void start();
-	void replyMessage();
+	void replyMessage(const MessagePtr &msgPtr);
 
 private:
 	void onRead();
-	void onWrite(std::size_t length);
+	void onWrite();
 
 	tcp::socket socket_;
 	static const int kTempBufSize = 2048;
-	char tempBuf[kTempBufSize];
-	Buffer buffer_;
+	char tempBuf_[kTempBufSize];
+	Buffer readBuffer_;
+	Buffer writeBuffer_;
 };

@@ -11,14 +11,17 @@ int main(int argc, char* argv[])
 {
 	AsioServer server(5566);
 	
-	server.addHandleMessage(Test::Hello::descriptor()->full_name(), [](const SessionPtr &sessionPtr, const MessagePtr &msgPtr) {
-		Test::Hello *hello = reinterpret_cast<Test::Hello*>(msgPtr.get());
+	server.addHandleMessage(Test::HelloReq::descriptor()->full_name(), [](const SessionPtr &sessionPtr, const MessagePtr &msgPtr) {
+		Test::HelloReq *hello = dynamic_cast<Test::HelloReq*>(msgPtr.get());
 		if (hello) {
 			std::cout << "name:" << hello->name() << std::endl;
 			std::cout << "id:" << hello->id() << std::endl;
 			std::cout << "address:" << hello->address() << std::endl;
 		}
-		sessionPtr->replyMessage();
+
+		std::shared_ptr<Test::HelloRsp> rsp(new Test::HelloRsp());
+		rsp->set_hello("hello, world!");
+		sessionPtr->replyMessage(rsp);
 	});
 
 	server.run();
