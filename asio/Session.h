@@ -7,11 +7,11 @@
 #include "TaskManager.h"
 
 using boost::asio::ip::tcp;
-class session : public std::enable_shared_from_this<session>
+class Session : public std::enable_shared_from_this<Session>
 {
 public:
-	session(tcp::socket socket);
-	~session();
+	Session(tcp::socket socket);
+	~Session();
 
 	void start();
 	void replyMessage();
