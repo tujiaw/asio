@@ -56,7 +56,7 @@
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>$(SolutionDir)boost\include;$(SolutionDir)protobuf\include;$(SolutionDir)protobuf\proto;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)boost\include;$(SolutionDir)protobuf\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
     </ClCompile>
     <Link>
@@ -88,16 +88,31 @@
     <Text Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\protobuf\proto\addressbook.pb.h" />
+    <ClInclude Include="..\protobuf\src\addressbook.pb.h" />
+    <ClInclude Include="AsioServer.h" />
+    <ClInclude Include="Buffer.h" />
     <ClInclude Include="ProtoHelp.h" />
+    <ClInclude Include="runnable.h" />
+    <ClInclude Include="Session.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
+    <ClInclude Include="TaskManager.h" />
+    <ClInclude Include="threadpool.h" />
+    <ClInclude Include="threadpoolthread.h" />
+    <ClInclude Include="threadpool_p.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\protobuf\proto\addressbook.pb.cc" />
-    <ClCompile Include="asio.cpp" />
+    <ClCompile Include="..\protobuf\src\addressbook.pb.cc" />
+    <ClCompile Include="main.cpp" />
+    <ClCompile Include="AsioServer.cpp" />
+    <ClCompile Include="Buffer.cpp" />
     <ClCompile Include="ProtoHelp.cpp" />
+    <ClCompile Include="Session.cpp" />
     <ClCompile Include="stdafx.cpp" />
+    <ClCompile Include="TaskManager.cpp" />
+    <ClCompile Include="threadpool.cpp" />
+    <ClCompile Include="threadpoolthread.cpp" />
+    <ClCompile Include="threadpool_p.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

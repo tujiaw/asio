@@ -1,6 +1,8 @@
 #include "Connector.h"
 #include <QHostAddress>
 #include <QMessageBox>
+#include "addressbook.pb.h"
+#include "ProtoHelp.h"
 
 const QStringList STATELIST = QStringList() << "The socket is not connected."
 	<< "The socket is performing a host name lookup."
@@ -23,6 +25,7 @@ Connector::Connector(QWidget *parent)
 	connect(&socket_, SIGNAL(error(QAbstractSocket::SocketError)), this, SLOT(onError(QAbstractSocket::SocketError)));
 	connect(&socket_, &QAbstractSocket::stateChanged, this, &Connector::onStateChanged);
 	connect(&socket_, &QIODevice::readyRead, this, &Connector::onReadyRead);
+	connect(ui.pbHello, &QPushButton::clicked, this, &Connector::onHello);
 
 	ui.leAddress->setText("127.0.0.1:5566");
 }
@@ -89,4 +92,14 @@ void Connector::onReadyRead()
 void Connector::onRecvDataClear()
 {
 	ui.lwRecvData->clear();
+}
+
+void Connector::onHello()
+{
+	Test::Hello hello;
+	hello.set_name("tujiaw");
+	hello.set_id(123);
+	hello.set_address("shanghai pudong");
+	std::string buf = ProtoHelp::encode(hello);
+	socket_.write(buf.c_str(), buf.size());
 }

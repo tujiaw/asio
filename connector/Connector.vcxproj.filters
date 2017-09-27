@@ -38,6 +38,9 @@
       <Extensions>cpp;moc</Extensions>
       <SourceControlFiles>False</SourceControlFiles>
     </Filter>
+    <Filter Include="proto">
+      <UniqueIdentifier>{604169ef-5cd2-4be4-bfdd-6c01f17aca6b}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -55,6 +58,12 @@
     <ClCompile Include="GeneratedFiles\qrc_Connector.cpp">
       <Filter>Generated Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\protobuf\src\addressbook.pb.cc">
+      <Filter>proto</Filter>
+    </ClCompile>
+    <ClCompile Include="ProtoHelp.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="Connector.h">
@@ -70,6 +79,12 @@
   <ItemGroup>
     <ClInclude Include="GeneratedFiles\ui_Connector.h">
       <Filter>Generated Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\protobuf\src\addressbook.pb.h">
+      <Filter>proto</Filter>
+    </ClInclude>
+    <ClInclude Include="ProtoHelp.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

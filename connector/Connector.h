@@ -18,6 +18,7 @@ public:
 	void onStateChanged(QAbstractSocket::SocketState socketState);
 	void onReadyRead();
 	void onRecvDataClear();
+	void onHello();
 
 public slots:
 	void onError(QAbstractSocket::SocketError socketError);

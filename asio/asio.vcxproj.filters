@@ -30,22 +30,67 @@
     <ClInclude Include="ProtoHelp.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="..\protobuf\proto\addressbook.pb.h">
+    <ClInclude Include="..\protobuf\src\addressbook.pb.h">
       <Filter>proto</Filter>
+    </ClInclude>
+    <ClInclude Include="Buffer.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="AsioServer.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="threadpool.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="threadpool_p.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="threadpoolthread.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="TaskManager.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="runnable.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Session.h">
+      <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="asio.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
     <ClCompile Include="ProtoHelp.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="..\protobuf\proto\addressbook.pb.cc">
+    <ClCompile Include="..\protobuf\src\addressbook.pb.cc">
       <Filter>proto</Filter>
+    </ClCompile>
+    <ClCompile Include="AsioServer.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Buffer.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="threadpool.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="threadpool_p.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="threadpoolthread.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="TaskManager.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="main.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Session.cpp">
+      <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

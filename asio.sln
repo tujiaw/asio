@@ -7,6 +7,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "asio", "asio\asio.vcxproj",
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Connector", "connector\Connector.vcxproj", "{B12702AD-ABFB-343A-A199-8E24837244A3}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SyncTimer", "syncTimer\SyncTimer.vcxproj", "{6729F9A6-CD29-4E35-A48C-939764A1566A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -21,6 +23,10 @@ Global
 		{B12702AD-ABFB-343A-A199-8E24837244A3}.Debug|Win32.Build.0 = Debug|Win32
 		{B12702AD-ABFB-343A-A199-8E24837244A3}.Release|Win32.ActiveCfg = Release|Win32
 		{B12702AD-ABFB-343A-A199-8E24837244A3}.Release|Win32.Build.0 = Release|Win32
+		{6729F9A6-CD29-4E35-A48C-939764A1566A}.Debug|Win32.ActiveCfg = Debug|Win32
+		{6729F9A6-CD29-4E35-A48C-939764A1566A}.Debug|Win32.Build.0 = Debug|Win32
+		{6729F9A6-CD29-4E35-A48C-939764A1566A}.Release|Win32.ActiveCfg = Release|Win32
+		{6729F9A6-CD29-4E35-A48C-939764A1566A}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
