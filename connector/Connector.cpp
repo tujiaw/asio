@@ -84,8 +84,18 @@ void Connector::onStateChanged(QAbstractSocket::SocketState socketState)
 void Connector::onReadyRead()
 {
 	QByteArray data(std::move(socket_.readAll()));
-	ui.lwRecvData->addItem(QString::fromUtf8(data));
-	ui.lwRecvData->setCurrentRow(ui.lwRecvData->count() - 1);
+	data = data.remove(0, 4);
+	std::string str(data.data(), data.size());
+	google::protobuf::Message *msg = ProtoHelp::decode(str);
+	if (msg) {
+		Test::HelloRsp *rsp = dynamic_cast<Test::HelloRsp*>(msg);
+		if (rsp) {
+			qDebug() << QString::fromUtf8(rsp->hello().c_str(), rsp->hello().size());
+		}
+	} else {
+		//ui.lwRecvData->addItem(qstr);
+		ui.lwRecvData->setCurrentRow(ui.lwRecvData->count() - 1);
+	}
 	qDebug() << "recv length:" << data.size();
 }
 
@@ -96,7 +106,7 @@ void Connector::onRecvDataClear()
 
 void Connector::onHello()
 {
-	Test::Hello hello;
+	Test::HelloReq hello;
 	hello.set_name("tujiaw");
 	hello.set_id(123);
 	hello.set_address("shanghai pudong");

@@ -89,8 +89,10 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\protobuf\src\addressbook.pb.h" />
+    <ClInclude Include="AsioClient.h" />
     <ClInclude Include="AsioServer.h" />
     <ClInclude Include="Buffer.h" />
+    <ClInclude Include="Constant.h" />
     <ClInclude Include="ProtoHelp.h" />
     <ClInclude Include="runnable.h" />
     <ClInclude Include="Session.h" />
@@ -103,6 +105,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\protobuf\src\addressbook.pb.cc" />
+    <ClCompile Include="AsioClient.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="AsioServer.cpp" />
     <ClCompile Include="Buffer.cpp" />
