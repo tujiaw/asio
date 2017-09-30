@@ -86,9 +86,9 @@ void Connector::onReadyRead()
 	QByteArray data(std::move(socket_.readAll()));
 	data = data.remove(0, 4);
 	std::string str(data.data(), data.size());
-	google::protobuf::Message *msg = ProtoHelp::decode(str);
-	if (msg) {
-		Test::HelloRsp *rsp = dynamic_cast<Test::HelloRsp*>(msg);
+	PackagePtr pacPtr = ProtoHelp::decode(str);
+	if (pacPtr) {
+		Test::HelloRsp *rsp = static_cast<Test::HelloRsp*>(pacPtr->msgPtr.get());
 		if (rsp) {
 			qDebug() << QString::fromUtf8(rsp->hello().c_str(), rsp->hello().size());
 		}
@@ -106,10 +106,18 @@ void Connector::onRecvDataClear()
 
 void Connector::onHello()
 {
-	Test::HelloReq hello;
-	hello.set_name("tujiaw");
-	hello.set_id(123);
-	hello.set_address("shanghai pudong");
-	std::string buf = ProtoHelp::encode(hello);
+	MessagePtr msgPtr(new Test::HelloReq());
+	Test::HelloReq *hello = (Test::HelloReq*)msgPtr.get();
+	hello->set_name("tujiaw");
+	hello->set_id(123);
+	hello->set_address("shanghai pudong");
+
+	PackagePtr pacPtr(new Package());
+	pacPtr->id = 100;
+	pacPtr->typeName = hello->GetTypeName();
+	pacPtr->typeNameLen = hello->GetTypeName().length();
+	pacPtr->msgPtr = msgPtr;
+
+	std::string buf = ProtoHelp::encode(pacPtr);
 	socket_.write(buf.c_str(), buf.size());
 }

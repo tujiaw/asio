@@ -9,7 +9,7 @@ public:
 	static TaskManager* instance();
 
 	void addHandleTask(const std::string &protoName, const Task &task);
-	void handleMessage(const MessagePtr &msgPtr, const SessionPtr &sessionPtr);
+	void handleMessage(const PackagePtr &msgPtr, const SessionPtr &sessionPtr);
 	void destory();
 
 private:

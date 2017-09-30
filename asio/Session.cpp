@@ -17,10 +17,10 @@ void session::start()
 	onRead();
 }
 
-void session::replyMessage(const MessagePtr &msgPtr)
+void session::replyMessage(const PackagePtr &rspPtr)
 {
-	if (msgPtr) {
-		std::string buf = ProtoHelp::encode(*msgPtr.get());
+	if (rspPtr) {
+		std::string buf = ProtoHelp::encode(rspPtr);
 		writeBuffer_.append(buf);
 		onWrite();
 	}
@@ -44,11 +44,10 @@ void session::onRead()
 					std::string packBuf;
 					packBuf.resize(packLen);
 					memcpy(&packBuf[0], readBuffer_.peek() + 4, packLen);
-					google::protobuf::Message* msg = ProtoHelp::decode(packBuf);
-					if (msg) {
+					PackagePtr pacPtr = ProtoHelp::decode(packBuf);
+					if (pacPtr) {
 						readBuffer_.retrieve(packLen + 4);
-						std::shared_ptr<google::protobuf::Message> msgPtr(msg);
-						TaskManager::instance()->handleMessage(msgPtr, self);
+						TaskManager::instance()->handleMessage(pacPtr, self);
 					} else {
 						readBuffer_.retrieve(1);
 					}

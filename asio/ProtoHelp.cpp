@@ -2,8 +2,6 @@
 #include <boost/asio.hpp>
 #include <boost/crc.hpp>
 
-const int kHeaderLen = sizeof(int32_t);
-
 using namespace boost::asio::detail;
 
 int ProtoHelp::crc32(const char* start, int len)
@@ -20,22 +18,23 @@ int ProtoHelp::net2int(const char *buf)
 	return socket_ops::network_to_host_long(result);
 }
 
-std::string ProtoHelp::encode(const google::protobuf::Message &message)
+std::string ProtoHelp::encode(const PackagePtr &package)
 {
 	std::string result;
 
 	// 消息包的总大小(4bytes)，先占位
 	result.resize(kHeaderLen);
-
-	std::string typeName = std::move(message.GetTypeName());
-	int nameLen = typeName.size() + 1;
-	int be32 = socket_ops::host_to_network_long(nameLen);
+	// 增加消息序列号
+	int be32 = socket_ops::host_to_network_long(package->id);
+	result.append((char*)&be32, sizeof be32);
+	std::string typeName = std::move(package->typeName);
+	be32 = socket_ops::host_to_network_long(package->typeNameLen);
 	// 类型名的长度(固定4bytes)
 	result.append((char*)&be32, sizeof be32);
 	// 类型名
-	result.append(typeName.c_str(), nameLen);
+	result.append(typeName.c_str(), package->typeNameLen);
 	// protobuf数据
-	if (message.AppendToString(&result)) {
+	if (package->msgPtr->AppendToString(&result)) {
 		int checksum = crc32(result.c_str() + kHeaderLen, result.size() - kHeaderLen);
 		be32 = socket_ops::host_to_network_long(checksum);
 		// crcd大小(固定4bytes)
@@ -51,23 +50,26 @@ std::string ProtoHelp::encode(const google::protobuf::Message &message)
 }
 
 // 从typename长度开始，len已经被读取了
-google::protobuf::Message* ProtoHelp::decode(const std::string &buf)
+PackagePtr ProtoHelp::decode(const std::string &buf)
 {
-	google::protobuf::Message *result = nullptr;
+	PackagePtr result(new Package());
 	int len = buf.size();
 	if (len > 10) {
+		result->totalSize = len;
 		int checksum = net2int(buf.c_str() + len - kHeaderLen);
 		int verifyChecksum = crc32(buf.c_str(), len - kHeaderLen);
 		if (checksum == verifyChecksum) {
-			int nameLen = net2int(buf.c_str());
-			if (nameLen >= 2 && nameLen <= len - 2 * kHeaderLen) {
-				std::string typeName(buf.begin() + kHeaderLen, buf.begin() + kHeaderLen + nameLen - 1);
-				google::protobuf::Message *msg = createMessage(typeName);
+			result->checksum = checksum;
+			result->id = net2int(buf.c_str());
+			result->typeNameLen = net2int(buf.c_str() + kHeaderLen);
+			if (result->typeNameLen >= 2 && result->typeNameLen <= len - 3 * kHeaderLen) {
+				result->typeName = std::string(buf.begin() + 2 * kHeaderLen, buf.begin() + 2 * kHeaderLen + result->typeNameLen);
+				google::protobuf::Message *msg = createMessage(result->typeName);
 				if (msg) {
-					const char *data = buf.c_str() + kHeaderLen + nameLen;
-					int dataLen = len - nameLen - 2 * kHeaderLen;
+					const char *data = buf.c_str() + 2 * kHeaderLen + result->typeNameLen;
+					int dataLen = len - result->typeNameLen - 3 * kHeaderLen;
 					if (msg->ParseFromArray(data, dataLen)) {
-						result = msg;
+						result->msgPtr = MessagePtr(msg);
 					} else {
 						delete msg;
 					}
@@ -75,7 +77,7 @@ google::protobuf::Message* ProtoHelp::decode(const std::string &buf)
 					std::cout << "createMessage failed" << std::endl;
 				}
 			} else {
-				std::cout << "name len error:" << nameLen << std::endl;
+				std::cout << "name len error:" << result->typeNameLen << std::endl;
 			}
 		} else {
 			std::cout << "verify checksum failed, src:" << checksum << ",dst:" << verifyChecksum << std::endl;

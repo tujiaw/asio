@@ -11,8 +11,8 @@ int main(int argc, char* argv[])
 {
 	AsioServer server(5566);
 	
-	server.addHandleMessage(Test::HelloReq::descriptor()->full_name(), [](const SessionPtr &sessionPtr, const MessagePtr &msgPtr) {
-		Test::HelloReq *hello = dynamic_cast<Test::HelloReq*>(msgPtr.get());
+	server.addHandleMessage(Test::HelloReq::descriptor()->full_name(), [](const SessionPtr &sessionPtr, const PackagePtr &reqPtr) {
+		Test::HelloReq *hello = dynamic_cast<Test::HelloReq*>(reqPtr->msgPtr.get());
 		if (hello) {
 			std::cout << "name:" << hello->name() << std::endl;
 			std::cout << "id:" << hello->id() << std::endl;
@@ -21,7 +21,13 @@ int main(int argc, char* argv[])
 
 		std::shared_ptr<Test::HelloRsp> rsp(new Test::HelloRsp());
 		rsp->set_hello("hello, world!");
-		sessionPtr->replyMessage(rsp);
+
+		PackagePtr rspPtr(new Package());
+		rspPtr->id = reqPtr->id;
+		rspPtr->typeNameLen = rsp->GetTypeName().length();
+		rspPtr->typeName = rsp->GetTypeName();
+		rspPtr->msgPtr = rsp;
+		sessionPtr->replyMessage(rspPtr);
 	});
 
 	server.run();

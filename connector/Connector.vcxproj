@@ -112,6 +112,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\protobuf\src\addressbook.pb.h" />
+    <ClInclude Include="Constant.h" />
     <ClInclude Include="GeneratedFiles\ui_Connector.h" />
     <ClInclude Include="ProtoHelp.h" />
   </ItemGroup>

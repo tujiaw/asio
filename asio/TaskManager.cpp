@@ -5,21 +5,21 @@
 class TaskRunnable : public Runnable
 {
 public:
-	TaskRunnable(const SessionPtr &sessionPtr, const MessagePtr &msgPtr, const Task &task)
-		: sessionPtr_(sessionPtr), msgPtr_(msgPtr), task_(task)
+	TaskRunnable(const SessionPtr &sessionPtr, const PackagePtr &pacPtr, const Task &task)
+		: sessionPtr_(sessionPtr), pacPtr_(pacPtr), task_(task)
 	{
 	}
 
 	void run()
 	{
 		if (task_) {
-			task_(sessionPtr_, msgPtr_);
+			task_(sessionPtr_, pacPtr_);
 		}
 	}
 
 private:
 	SessionPtr sessionPtr_;
-	MessagePtr msgPtr_;
+	PackagePtr pacPtr_;
 	Task task_;
 };
 
@@ -40,16 +40,16 @@ void TaskManager::addHandleTask(const std::string &protoName, const Task &task)
 	handler_[protoName] = task;
 }
 
-void TaskManager::handleMessage(const MessagePtr &msgPtr, const SessionPtr &sessionPtr)
+void TaskManager::handleMessage(const PackagePtr &pacPtr, const SessionPtr &sessionPtr)
 {
-	if (!msgPtr) {
+	if (!pacPtr) {
 		return;
 	}
 
-	std::string name = std::move(msgPtr->GetDescriptor()->full_name());
+	std::string name = std::move(pacPtr->typeName);
 	auto iter = handler_.find(name);
 	if (iter != handler_.end()) {
-		TaskRunnable *runable = new TaskRunnable(sessionPtr, msgPtr, iter->second);
+		TaskRunnable *runable = new TaskRunnable(sessionPtr, pacPtr, iter->second);
 		pool_->start(runable);
 	} else {
 		std::cout << "message discard:" << name;

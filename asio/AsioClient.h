@@ -4,8 +4,10 @@
 #include <boost/asio.hpp>
 #include <thread>
 #include <deque>
+#include <atomic>
 #include "Constant.h"
 #include "Buffer.h"
+#include "threadpool.h"
 
 using boost::asio::ip::tcp;
 class AsioClient
@@ -22,6 +24,7 @@ public:
 private:
 	AsioClient(AsioClient &);
 	void operator=(AsioClient &);
+	void onRead();
 	void onWrite();
 
 private:
@@ -29,6 +32,13 @@ private:
 	tcp::socket socket_;
 	std::thread runthread_;
 	std::deque<MessagePtr> pendingList_;
-	std::deque<MessagePtr> sentList_;
+	std::atomic<int> id_;
+
+	static const int kTempBufSize = 2048;
+	char tempBuf_[kTempBufSize];
+	Buffer readBuffer_;
+
+	std::map<MessagePtr, Response> responseMap_;
+	ThreadPool pool_;
 };
 

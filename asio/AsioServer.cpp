@@ -2,7 +2,7 @@
 #include <iostream>
 #include <boost/lexical_cast.hpp>
 #include "ProtoHelp.h"
-#include "Session.h"
+#include "session.h"
 
 std::string endpoint2str(const tcp::endpoint &endpoint)
 {
@@ -44,7 +44,7 @@ void AsioServer::onAccept()
 	{
 		if (!ec) {
 			std::string remoteHost = endpoint2str(socket_.remote_endpoint());
-			std::make_shared<Session>(std::move(socket_))->start();
+			std::make_shared<session>(std::move(socket_))->start();
 			std::cout << "remote host:" << remoteHost << std::endl;
 		} else {
 			std::cerr << ec.message() << std::endl;
