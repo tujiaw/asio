@@ -31,14 +31,14 @@ private:
 	boost::asio::io_service io_;
 	tcp::socket socket_;
 	std::thread runthread_;
-	std::deque<MessagePtr> pendingList_;
+	std::deque<PackagePtr> pendingList_;
 	std::atomic<int> id_;
 
 	static const int kTempBufSize = 2048;
 	char tempBuf_[kTempBufSize];
 	Buffer readBuffer_;
 
-	std::map<MessagePtr, Response> responseMap_;
+	std::map<PackagePtr, Response> responseMap_;
 	ThreadPool pool_;
 };
 
