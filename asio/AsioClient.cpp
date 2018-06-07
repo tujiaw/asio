@@ -66,29 +66,14 @@ void AsioClient::onRead()
 		}
 		
 		readBuffer_.append(tempBuf_, length);
-		if (readBuffer_.readableBytes() > kHeaderLen) {
-			int packLen = readBuffer_.peekInt32();
-			if (packLen <= 0) {
-				readBuffer_.retrieve(1);
-			} else if (packLen > 1024 * 1024 * 10) {
-				readBuffer_.retrieve(1);
-			} else if (readBuffer_.readableBytes() >= (size_t)packLen + kHeaderLen) {
-				std::string packBuf;
-				packBuf.resize(packLen);
-				memcpy(&packBuf[0], readBuffer_.peek() + kHeaderLen, packLen);
-				PackagePtr packPtr = ProtoHelp::decode(packBuf);
-				if (packPtr) {
-					readBuffer_.retrieve(packLen + kHeaderLen);
-					for (auto iter = responseMap_.begin(); iter != responseMap_.end(); ++iter) {
-						if (iter->first->id == packPtr->id) {
-							Response resFunc = iter->second;
-							resFunc(0, iter->first, packPtr);
-							responseMap_.erase(iter);
-							break;
-						}
-					}
-				} else {
-					readBuffer_.retrieve(1);
+		PackagePtr pack = ProtoHelp::decode(readBuffer_);
+		if (pack) {
+			for (auto iter = responseMap_.begin(); iter != responseMap_.end(); ++iter) {
+				if (iter->first->id == pack->id) {
+					Response resFunc = iter->second;
+					resFunc(0, iter->first, pack);
+					responseMap_.erase(iter);
+					break;
 				}
 			}
 		}

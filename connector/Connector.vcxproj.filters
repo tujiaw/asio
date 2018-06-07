@@ -58,10 +58,13 @@
     <ClCompile Include="GeneratedFiles\qrc_Connector.cpp">
       <Filter>Generated Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\protobuf\src\addressbook.pb.cc">
+    <ClCompile Include="ProtoHelp.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\protobuf\include\addressbook.pb.cc">
       <Filter>proto</Filter>
     </ClCompile>
-    <ClCompile Include="ProtoHelp.cpp">
+    <ClCompile Include="Buffer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -80,14 +83,17 @@
     <ClInclude Include="GeneratedFiles\ui_Connector.h">
       <Filter>Generated Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\protobuf\src\addressbook.pb.h">
-      <Filter>proto</Filter>
-    </ClInclude>
     <ClInclude Include="ProtoHelp.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Constant.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\protobuf\include\addressbook.pb.h">
+      <Filter>proto</Filter>
+    </ClInclude>
+    <ClInclude Include="Buffer.h">
+      <Filter>Source Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

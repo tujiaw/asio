@@ -88,7 +88,7 @@
     <Text Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\protobuf\src\addressbook.pb.h" />
+    <ClInclude Include="..\protobuf\include\addressbook.pb.h" />
     <ClInclude Include="AsioClient.h" />
     <ClInclude Include="AsioServer.h" />
     <ClInclude Include="Buffer.h" />
@@ -104,7 +104,7 @@
     <ClInclude Include="threadpool_p.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\protobuf\src\addressbook.pb.cc" />
+    <ClCompile Include="..\protobuf\include\addressbook.pb.cc" />
     <ClCompile Include="AsioClient.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="AsioServer.cpp" />

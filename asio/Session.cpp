@@ -34,24 +34,9 @@ void session::onRead()
 	{
 		if (!ec) {
 			readBuffer_.append(tempBuf_, length);
-			if (readBuffer_.readableBytes() > 4) {
-				int packLen = readBuffer_.peekInt32();
-				if (packLen <= 0) {
-					readBuffer_.retrieve(1);
-				} else if (packLen > 1024 * 1024 * 10) {
-					readBuffer_.retrieve(1);
-				} else if (readBuffer_.readableBytes() >= (size_t)packLen + 4) {
-					std::string packBuf;
-					packBuf.resize(packLen);
-					memcpy(&packBuf[0], readBuffer_.peek() + 4, packLen);
-					PackagePtr pacPtr = ProtoHelp::decode(packBuf);
-					if (pacPtr) {
-						readBuffer_.retrieve(packLen + 4);
-						TaskManager::instance()->handleMessage(pacPtr, self);
-					} else {
-						readBuffer_.retrieve(1);
-					}
-				}
+			PackagePtr pack = ProtoHelp::decode(readBuffer_);
+			if (pack) {
+				TaskManager::instance()->handleMessage(pack, self);
 			}
 
 			onRead();
@@ -61,17 +46,17 @@ void session::onRead()
 
 void session::onWrite()
 {
-	if (writeBuffer_.readableBytes() <= 0) {
+	int readLen = writeBuffer_.readableBytes();
+	if (readLen <= 0) {
 		return;
 	}
 
 	auto self(shared_from_this());
-	boost::asio::async_write(socket_, boost::asio::buffer(writeBuffer_.peek(), writeBuffer_.readableBytes()),
+	boost::asio::async_write(socket_, boost::asio::buffer(writeBuffer_.peekRetrieve(readLen), readLen),
 		[this, self](boost::system::error_code ec, std::size_t length)
 	{
 		if (!ec)
 		{
-			writeBuffer_.retrieve(length);
 			onWrite();
 			std::cout << "write length:" << length << std::endl;
 		}

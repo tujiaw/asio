@@ -6,6 +6,7 @@
 #include "AsioServer.h"
 #include <iostream>
 #include "addressbook.pb.h"
+#include <thread>
 
 int main(int argc, char* argv[])
 {
@@ -20,7 +21,7 @@ int main(int argc, char* argv[])
 		}
 
 		std::shared_ptr<Test::HelloRsp> rsp(new Test::HelloRsp());
-		rsp->set_hello("hello, world!");
+		rsp->set_hello(hello->address());
 
 		PackagePtr rspPtr(new Package());
 		rspPtr->id = reqPtr->id;
@@ -31,6 +32,9 @@ int main(int argc, char* argv[])
 	});
 
 	server.run();
-	system("pause");
+	std::cout << "running..." << std::endl;
+	while (1) {
+		std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+	}
 	return 0;
 }

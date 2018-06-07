@@ -3,7 +3,7 @@
 #include <QMessageBox>
 #include "addressbook.pb.h"
 #include "ProtoHelp.h"
-
+#include "Buffer.h"
 const QStringList STATELIST = QStringList() << "The socket is not connected."
 	<< "The socket is performing a host name lookup."
 	<< "The socket has started establishing a connection."
@@ -84,13 +84,15 @@ void Connector::onStateChanged(QAbstractSocket::SocketState socketState)
 void Connector::onReadyRead()
 {
 	QByteArray data(std::move(socket_.readAll()));
-	data = data.remove(0, 4);
 	std::string str(data.data(), data.size());
-	PackagePtr pacPtr = ProtoHelp::decode(str);
+	Buffer buf;
+	buf.append(str);
+	PackagePtr pacPtr = ProtoHelp::decode(buf);
 	if (pacPtr) {
 		Test::HelloRsp *rsp = static_cast<Test::HelloRsp*>(pacPtr->msgPtr.get());
 		if (rsp) {
-			qDebug() << QString::fromUtf8(rsp->hello().c_str(), rsp->hello().size());
+			//qDebug() << QString::fromUtf8(rsp->hello().c_str(), rsp->hello().size());
+			ui.lwRecvData->addItem(QString::fromStdString(rsp->hello()));
 		}
 	} else {
 		//ui.lwRecvData->addItem(qstr);
@@ -110,7 +112,7 @@ void Connector::onHello()
 	Test::HelloReq *hello = (Test::HelloReq*)msgPtr.get();
 	hello->set_name("tujiaw");
 	hello->set_id(123);
-	hello->set_address("shanghai pudong");
+	hello->set_address(ui.teSendData->toPlainText().toStdString());
 
 	PackagePtr pacPtr(new Package());
 	pacPtr->id = 100;

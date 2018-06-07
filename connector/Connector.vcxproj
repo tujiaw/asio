@@ -69,7 +69,8 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\protobuf\src\addressbook.pb.cc" />
+    <ClCompile Include="..\protobuf\include\addressbook.pb.cc" />
+    <ClCompile Include="Buffer.cpp" />
     <ClCompile Include="Connector.cpp" />
     <ClCompile Include="GeneratedFiles\Debug\moc_Connector.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
@@ -111,7 +112,8 @@
     </CustomBuild>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\protobuf\src\addressbook.pb.h" />
+    <ClInclude Include="..\protobuf\include\addressbook.pb.h" />
+    <ClInclude Include="Buffer.h" />
     <ClInclude Include="Constant.h" />
     <ClInclude Include="GeneratedFiles\ui_Connector.h" />
     <ClInclude Include="ProtoHelp.h" />
@@ -133,7 +135,7 @@
   </ImportGroup>
   <ProjectExtensions>
     <VisualStudio>
-      <UserProperties MocDir=".\GeneratedFiles\$(ConfigurationName)" UicDir=".\GeneratedFiles" RccDir=".\GeneratedFiles" lupdateOptions="" lupdateOnBuild="0" lreleaseOptions="" Qt5Version_x0020_Win32="5.6.2" MocOptions="" />
+      <UserProperties MocDir=".\GeneratedFiles\$(ConfigurationName)" UicDir=".\GeneratedFiles" RccDir=".\GeneratedFiles" lupdateOptions="" lupdateOnBuild="0" lreleaseOptions="" Qt5Version_x0020_Win32="msvc2013" MocOptions="" />
     </VisualStudio>
   </ProjectExtensions>
 </Project>

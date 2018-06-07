@@ -33,8 +33,10 @@ void AsioServer::run()
 
 void AsioServer::stop()
 {
-	io_.stop();
-	runthread_.join();
+	if (!io_.stopped()) {
+		io_.stop();
+		runthread_.join();
+	}
 }
 
 void AsioServer::onAccept()

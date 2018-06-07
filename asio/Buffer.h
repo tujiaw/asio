@@ -10,7 +10,7 @@ typedef std::shared_ptr<Buffer> BufferPtr;
 class Buffer
 {
 public:
-	static const size_t kCheapPrepend = 8;
+	static const size_t kCheapPrepend = 0;
 	static const size_t kInitialSize = 2048;
 
 	Buffer()
@@ -48,6 +48,13 @@ public:
 	const char *peek() const
 	{
 		return begin() + readerIndex_;
+	}
+
+	const char *peekRetrieve(size_t len)
+	{
+		const char* result = begin() + readerIndex_;
+		retrieve(len);
+		return result;
 	}
 
 	void retrieve(size_t len)
