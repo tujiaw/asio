@@ -5,10 +5,11 @@
 
 using namespace boost::asio::detail;
 
-static const int kFlagLen = 2;
-static const int kTotalLen = 4;
-static const int kIDLen = 4;
-static const int kTypeNameLen = 4;
+static const Package emptyPackage;
+static const int kFlagLen = sizeof(emptyPackage.flag);
+static const int kTotalLen = sizeof(emptyPackage.totalSize);
+static const int kIDLen = sizeof(emptyPackage.id);
+static const int kTypeNameLen = sizeof(emptyPackage.typeNameLen);
 static const int kMaxPackageLen = 10 * 1024 * 1024;
 int ProtoHelp::crc32(const char* start, int len)
 {
@@ -32,18 +33,18 @@ std::string ProtoHelp::encode(const PackagePtr &package)
 
 	// 增加消息序列号
 	int be32 = socket_ops::host_to_network_long(package->id);
-	result.append((char*)&be32, sizeof be32);
+	result.append((char*)&be32, kIDLen);
 	std::string typeName = std::move(package->typeName);
 	be32 = socket_ops::host_to_network_long(package->typeNameLen);
 	// 类型名的长度(固定4bytes)
-	result.append((char*)&be32, sizeof be32);
+	result.append((char*)&be32, kTypeNameLen);
 	// 类型名
 	result.append(typeName.c_str(), package->typeNameLen);
 	// protobuf数据
 	if (package->msgPtr->AppendToString(&result)) {
 		// 最后在头四个字节填充消息体大小
 		int bodyLen = socket_ops::host_to_network_long(result.size());
-		std::copy((char*)&bodyLen, ((char*)&bodyLen) + sizeof(bodyLen), result.begin() + kFlagLen);
+		std::copy((char*)&bodyLen, ((char*)&bodyLen) + kTotalLen, result.begin() + kFlagLen);
 	} else {
 		result.clear();
 	}
@@ -53,50 +54,58 @@ std::string ProtoHelp::encode(const PackagePtr &package)
 
 PackagePtr ProtoHelp::decode(Buffer &buf)
 {
-	if (buf.readableBytes() < 11) {
-		return nullptr;
-	}
-
+	bool isOk = false;
 	char flags[kFlagLen];
-	memcpy(flags, buf.peek(), kFlagLen);
-	if (flags[0] != 'P' || flags[1] != 'P') {
-		std::cout << "buffer flag error:" << flags[0] << "," << flags[1] << std::endl;
-		buf.retrieve(1);
+	while (buf.readableBytes() >= 11) {
+		memcpy(flags, buf.peek(), kFlagLen);
+		if (flags[0] == 'P' || flags[1] == 'P') {
+			isOk = true;
+			break;
+		} else {
+			std::cout << "buffer flag error:" << flags[0] << "," << flags[1] << std::endl;
+			buf.retrieve(1);
+		}
+	}
+	if (!isOk) {
 		return nullptr;
 	}
 
-	PackagePtr result(new Package());
-	result->totalSize = net2int(buf.peek() + kFlagLen);
-	if (buf.readableBytes() + kFlagLen < result->totalSize) {
-		std::cout << "buffer read able bytes error:" << buf.readableBytes() << ",total:" << result->totalSize << std::endl;
+	int totalSize = net2int(buf.peek() + kFlagLen);
+	if ((int)buf.readableBytes() + kFlagLen < totalSize) {
+		std::cout << "buffer read able bytes error:" << buf.readableBytes() << ",total:" << totalSize << std::endl;
 		return nullptr;
 	}
 
-	if (result->totalSize <= 0 || result->totalSize > kMaxPackageLen) {
+	if (totalSize <= 0 || totalSize > kMaxPackageLen) {
 		buf.retrieveInt8();
-		std::cout << "total size error:" << result->totalSize << std::endl;
+		std::cout << "total size error:" << totalSize << std::endl;
 		return nullptr;
 	}
 
 	buf.retrieve(kFlagLen + kTotalLen);
-	result->id = net2int(buf.peek());
-	buf.retrieve(sizeof(result->id));
-	result->typeNameLen = net2int(buf.peek());
-	if (result->typeNameLen <= 0 || result->typeNameLen > 1024) {
-		std::cout << "type name len error:" << result->typeNameLen << std::endl;
+	int id = net2int(buf.peek());
+	buf.retrieve(kIDLen);
+	int typeNameLen = net2int(buf.peek());
+	if (typeNameLen <= 0 || typeNameLen > 1024) {
+		std::cout << "type name len error:" << typeNameLen << std::endl;
 		return nullptr;
 	}
 
 	buf.retrieve(kTypeNameLen);
-	result->typeName = buf.retrieveAsString(result->typeNameLen);
-	google::protobuf::Message *msg = createMessage(result->typeName);
-	int msgLen = result->totalSize - kFlagLen - kTotalLen - kIDLen - kTypeNameLen - result->typeNameLen;
+	std::string typeName = buf.retrieveAsString(typeNameLen);
+	google::protobuf::Message *msg = createMessage(typeName);
+	int msgLen = totalSize - kFlagLen - kTotalLen - kIDLen - kTypeNameLen - typeNameLen;
 	if (msg && msg->ParseFromArray(buf.peek(), msgLen)) {
 		buf.retrieve(msgLen);
+		PackagePtr result(new Package());
+		result->totalSize = totalSize;
+		result->id = id;
+		result->typeNameLen = typeNameLen;
+		result->typeName = typeName;
 		result->msgPtr = MessagePtr(msg);
 		return result;
 	}
-	std::cout << "protobuf parse error:" << result->typeName << std::endl;
+	std::cout << "protobuf parse error:" << typeName << std::endl;
 	return nullptr;
 }
 
