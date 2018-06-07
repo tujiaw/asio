@@ -1,6 +1,5 @@
 #include "ProtoHelp.h"
 #include <boost/asio.hpp>
-#include <boost/crc.hpp>
 #include "Buffer.h"
 
 using namespace boost::asio::detail;
@@ -11,12 +10,6 @@ static const int kTotalLen = sizeof(emptyPackage.totalSize);
 static const int kIDLen = sizeof(emptyPackage.id);
 static const int kTypeNameLen = sizeof(emptyPackage.typeNameLen);
 static const int kMaxPackageLen = 10 * 1024 * 1024;
-int ProtoHelp::crc32(const char* start, int len)
-{
-	boost::crc_32_type result;
-	result.process_bytes(start, len);
-	return result.checksum();
-}
 
 int ProtoHelp::net2int(const char *buf)
 {
