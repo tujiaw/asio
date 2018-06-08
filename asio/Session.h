@@ -21,7 +21,7 @@ private:
 
 	tcp::socket socket_;
 	boost::asio::io_service &io_;
-	static const int kTempBufSize = 2048;
+	static const int kTempBufSize = 1024 * 10;
 	char tempBuf_[kTempBufSize];
 	Buffer readBuffer_;
 };

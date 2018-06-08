@@ -71,18 +71,17 @@ PackagePtr ProtoHelp::decode(Buffer &buf)
 		return nullptr;
 	}
 
-	buf.retrieveInt16();
-	int totalSize = net2int(buf.readInt32());
+	int totalSize = net2int(buf.peek() + kFlagLen);
 	if (totalSize <= 0 || totalSize > kMaxPackageLen) {
 		std::cout << "total size error:" << totalSize << std::endl;
 		return nullptr;
 	}
 
-	if ((int)buf.readableBytes() + kFlagLen + kTotalLen < totalSize) {
-		std::cout << "buffer read able bytes error:" << buf.readableBytes() << ",total:" << totalSize << std::endl;
+	if ((int)buf.readableBytes() < totalSize) {
 		return nullptr;
 	}
 
+	buf.retrieve(kFlagLen + kTotalLen);
 	int id = net2int(buf.readInt32());
 	int typeNameLen = net2int(buf.readInt32());
 	if (typeNameLen <= 0 || typeNameLen > 1024) {

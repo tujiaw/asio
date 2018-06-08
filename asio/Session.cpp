@@ -28,22 +28,17 @@ void session::replyMessage(const PackagePtr &rspPtr)
 	}
 }
 
-int index = 0;
 void session::onRead()
 {
-	std::thread::id xx = std::this_thread::get_id();
 	auto self(shared_from_this());
 	socket_.async_read_some(boost::asio::buffer(&tempBuf_[0], kTempBufSize),
 		[this, self](boost::system::error_code ec, std::size_t length)
 	{
 		if (!ec) {
-			std::thread::id yy = std::this_thread::get_id();
 			readBuffer_.append(&tempBuf_[0], length);
 			do {
 				PackagePtr pack = ProtoHelp::decode(readBuffer_);
 				if (pack) {
-					++index;
-					std::cout << "index:" << index << std::endl;
 					TaskManager::instance()->handleMessage(pack, self);
 				} else {
 					break;
@@ -70,7 +65,7 @@ void session::onWrite(BufferPtr writeBuffer)
 	{
 		if (!ec) {
 			writeBuffer->retrieve(length);
-			//onWrite(writeBuffer);
+			onWrite(writeBuffer);
 		}
 	});
 }

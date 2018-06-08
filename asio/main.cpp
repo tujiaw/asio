@@ -11,7 +11,7 @@
 
 int main(int argc, char* argv[])
 {
-#if 1
+#if 0
 	AsioServer server(5566);
 	server.addHandleMessage(Test::HelloReq::descriptor()->full_name(), [](const SessionPtr &sessionPtr, const PackagePtr &reqPtr) {
 		Test::HelloReq *hello = dynamic_cast<Test::HelloReq*>(reqPtr->msgPtr.get());
