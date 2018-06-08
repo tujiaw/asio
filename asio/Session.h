@@ -20,6 +20,7 @@ private:
 	void onWrite(BufferPtr writeBuffer);
 
 	tcp::socket socket_;
+	boost::asio::io_service &io_;
 	static const int kTempBufSize = 2048;
 	char tempBuf_[kTempBufSize];
 	Buffer readBuffer_;

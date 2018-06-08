@@ -11,15 +11,10 @@
 
 int main(int argc, char* argv[])
 {
-#if 0
+#if 1
 	AsioServer server(5566);
 	server.addHandleMessage(Test::HelloReq::descriptor()->full_name(), [](const SessionPtr &sessionPtr, const PackagePtr &reqPtr) {
 		Test::HelloReq *hello = dynamic_cast<Test::HelloReq*>(reqPtr->msgPtr.get());
-		if (hello) {
-			std::cout << "name:" << hello->name() << std::endl;
-			std::cout << "id:" << hello->id() << std::endl;
-			std::cout << "address:" << hello->address() << std::endl;
-		}
 
 		std::shared_ptr<Test::HelloRsp> rsp(new Test::HelloRsp());
 		rsp->set_hello(hello->address());
@@ -38,7 +33,7 @@ int main(int argc, char* argv[])
 	client.run();
 	std::this_thread::sleep_for(std::chrono::seconds(1));
 	int index = 0;
-	for (int i = 0; i < 10; i++) {
+	for (int i = 0; i < 100; i++) {
 		Test::HelloReq *msg = new Test::HelloReq();
 		msg->set_id(1233);
 		msg->set_name("hello");
