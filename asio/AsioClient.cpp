@@ -13,17 +13,12 @@ AsioClient::AsioClient(const std::string &address)
 			if (!ec) {
 				onRead();
 			}
-			std::cout << "connect " << ec.message() << std::endl;
+			LOG(INFO) << "connect " << ec.message();
 		});
 		runthread_ = std::move(std::thread([this](){ io_.run(); }));
 	}
 }
 AsioClient::~AsioClient()
-{
-}
-
-
-void AsioClient::run()
 {
 }
 
@@ -40,9 +35,29 @@ void AsioClient::close()
 	io_.post(std::bind(&AsioClient::doClose, this));
 }
 
-void AsioClient::sendMessage(const MessagePtr &msgPtr, int msTimeout)
+int AsioClient::sendMessage(const MessagePtr &msgPtr, MessagePtr &rspPtr, int msTimeout)
 {
+	int errorCode = ErrorCode::Unkown;
+	bool isWait = true;
+	postMessage(msgPtr, [&](int error, const PackagePtr &reqMsgPtr, const PackagePtr &rspMsgPtr) {
+		errorCode = error;
+		if (error == 0) {
+			rspPtr = rspMsgPtr->msgPtr;
+		} 
+		std::unique_lock<std::mutex> lock(mutex_);
+		isWait = false;
+		this->cond_.notify_all();
+	});
 
+	std::unique_lock<std::mutex> lock(mutex_);
+	while (isWait) {
+		std::_Cv_status status = cond_.wait_for(lock, std::chrono::milliseconds(msTimeout));
+		if (status == std::_Cv_status::timeout) {
+			errorCode = ErrorCode::Timeout;
+			break;
+		}
+	}
+	return errorCode;
 }
 
 void AsioClient::postMessage(const MessagePtr &msgPtr, const Response &res)
@@ -68,7 +83,7 @@ void AsioClient::onRead()
 		[this](boost::system::error_code ec, std::size_t length)
 	{
 		if (ec) {
-			std::cout << "onRead error: " << ec;
+			LOG(ERROR) << "onRead error:" << ec.message();
 			return;
 		}
 		
@@ -77,13 +92,14 @@ void AsioClient::onRead()
 		do {
 			PackagePtr pack = ProtoHelp::decode(readBuffer_);
 			if (pack) {
+				LOG(INFO) << "response id:" << pack->id;
 				auto it = responseMap_.find(pack->id);
 				if (it != responseMap_.end()) {
 					Response resFunc = it->second.second;
 					resFunc(0, it->second.first, pack);
 					responseMap_.erase(it);
 				} else {
-					std::cout << "onRead id not find:" << pack->id << std::endl;
+					LOG(ERROR) << "onRead id not find:" << pack->id;
 				}
 			} else {
 				break;
@@ -107,9 +123,9 @@ void AsioClient::onWrite()
 		boost::asio::async_write(socket_, boost::asio::buffer(writeBuffer->peek(), writeBuffer->readableBytes()), 
 			[this](std::error_code ec, std::size_t length) {
 			if (!ec) {
-				std::cout << "write length:" << length << std::endl;
 				onWrite();
 			} else {
+				LOG(ERROR) << "close " << ec.message();
 				this->close();
 			}
 		});

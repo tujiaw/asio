@@ -6,7 +6,7 @@
 #include "TaskManager.h"
 
 using boost::asio::ip::tcp;
-class AsioServer
+class AsioServer : boost::noncopyable
 {
 public:
 	explicit AsioServer(unsigned short port);
@@ -17,8 +17,6 @@ public:
 	void addHandleMessage(const std::string &protoName, const Task &task);
 
 private:
-	AsioServer(AsioServer &);
-	void operator=(AsioServer &);
 	void onAccept();
 
 private:

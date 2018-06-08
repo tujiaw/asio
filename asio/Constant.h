@@ -2,6 +2,7 @@
 
 #include <functional>
 #include "google/protobuf/message.h"
+#include <glog/logging.h>
 
 class session;
 class Buffer;
@@ -35,3 +36,8 @@ struct Package {
 	MessagePtr msgPtr;		// protobufœ˚œ¢
 };
 
+enum ErrorCode {
+	Success = 0,
+	Unkown,
+	Timeout,
+};

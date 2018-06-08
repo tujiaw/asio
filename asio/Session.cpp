@@ -23,7 +23,6 @@ void session::replyMessage(const PackagePtr &rspPtr)
 		BufferPtr writeBuffer = ProtoHelp::encode(rspPtr);
 		if (writeBuffer) {
 			io_.post([this, writeBuffer]{ onWrite(writeBuffer); });
-			//onWrite(writeBuffer);
 		}
 	}
 }
