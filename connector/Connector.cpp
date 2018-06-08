@@ -1,6 +1,7 @@
 #include "Connector.h"
 #include <QHostAddress>
 #include <QMessageBox>
+#include <QTimer>
 #include "addressbook.pb.h"
 #include "ProtoHelp.h"
 #include "Buffer.h"
@@ -13,7 +14,7 @@ const QStringList STATELIST = QStringList() << "The socket is not connected."
 	<< "For internal use only.";
 
 Connector::Connector(QWidget *parent)
-	: QDialog(parent)
+	: QDialog(parent), id_(100), timer_(new QTimer(this))
 {
 	ui.setupUi(this);
 
@@ -26,8 +27,10 @@ Connector::Connector(QWidget *parent)
 	connect(&socket_, &QAbstractSocket::stateChanged, this, &Connector::onStateChanged);
 	connect(&socket_, &QIODevice::readyRead, this, &Connector::onReadyRead);
 	connect(ui.pbHello, &QPushButton::clicked, this, &Connector::onHello);
+	connect(timer_, &QTimer::timeout, this, &Connector::onTimer);
 
 	ui.leAddress->setText("127.0.0.1:5566");
+	ui.teSendData->setText("hello, world!");
 }
 
 void Connector::onConnect()
@@ -54,13 +57,21 @@ void Connector::onDisconnect()
 
 void Connector::onStart()
 {
-	QByteArray data(std::move(ui.teSendData->toPlainText().toUtf8()));
-	socket_.write(data);
+	int ms = ui.leIntervalMillisecond->text().toInt();
+	if (ms <= 0) {
+		return;
+	}
+
+	if (timer_->interval() != ms) {
+		timer_->setInterval(ms);
+		timer_->stop();
+	}
+	timer_->start();
 }
 
 void Connector::onStop()
 {
-
+	timer_->stop();
 }
 
 void Connector::onError(QAbstractSocket::SocketError socketError)
@@ -70,6 +81,11 @@ void Connector::onError(QAbstractSocket::SocketError socketError)
 	} else {
 		ui.labelStatus->setText(QString("on error:%1").arg(socket_.errorString()));
 	}
+}
+
+void Connector::onTimer()
+{
+	sendMsg();
 }
 
 void Connector::onStateChanged(QAbstractSocket::SocketState socketState)
@@ -88,15 +104,17 @@ void Connector::onReadyRead()
 	Buffer buf;
 	buf.append(str);
 	PackagePtr pacPtr = ProtoHelp::decode(buf);
-	if (pacPtr) {
+	if (pacPtr && pacPtr->msgPtr->GetTypeName() == Test::HelloRsp::default_instance().GetTypeName()) {
 		Test::HelloRsp *rsp = static_cast<Test::HelloRsp*>(pacPtr->msgPtr.get());
 		if (rsp) {
-			//qDebug() << QString::fromUtf8(rsp->hello().c_str(), rsp->hello().size());
+			if (ui.lwRecvData->count() > 3000) {
+				ui.lwRecvData->clear();
+			}
 			ui.lwRecvData->addItem(QString::fromStdString(rsp->hello()));
+			ui.lwRecvData->scrollToBottom();
 		}
 	} else {
-		//ui.lwRecvData->addItem(qstr);
-		ui.lwRecvData->setCurrentRow(ui.lwRecvData->count() - 1);
+		ui.labelStatus->setText("decode failed");
 	}
 	qDebug() << "recv length:" << data.size();
 }
@@ -108,14 +126,20 @@ void Connector::onRecvDataClear()
 
 void Connector::onHello()
 {
+	sendMsg();
+}
+
+void Connector::sendMsg()
+{
+	++id_;
 	MessagePtr msgPtr(new Test::HelloReq());
 	Test::HelloReq *hello = (Test::HelloReq*)msgPtr.get();
 	hello->set_name("tujiaw");
-	hello->set_id(123);
-	hello->set_address(ui.teSendData->toPlainText().toStdString());
+	hello->set_id(id_);
+	hello->set_address((QString::number(id_) + ui.teSendData->toPlainText()).toStdString());
 
 	PackagePtr pacPtr(new Package());
-	pacPtr->id = 100;
+	pacPtr->id = id_;
 	pacPtr->typeName = hello->GetTypeName();
 	pacPtr->typeNameLen = hello->GetTypeName().length();
 	pacPtr->msgPtr = msgPtr;

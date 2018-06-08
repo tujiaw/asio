@@ -1,6 +1,5 @@
 #pragma once
 
-#include <boost/enable_shared_from_this.hpp>
 #include <boost/asio.hpp>
 #include <thread>
 #include "Buffer.h"

@@ -1,6 +1,5 @@
 #pragma once
 
-#include <boost/enable_shared_from_this.hpp>
 #include <boost/asio.hpp>
 #include <thread>
 #include "Buffer.h"
@@ -18,11 +17,10 @@ public:
 
 private:
 	void onRead();
-	void onWrite();
+	void onWrite(BufferPtr writeBuffer);
 
 	tcp::socket socket_;
 	static const int kTempBufSize = 2048;
 	char tempBuf_[kTempBufSize];
 	Buffer readBuffer_;
-	Buffer writeBuffer_;
 };

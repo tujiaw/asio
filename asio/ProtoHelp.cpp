@@ -18,31 +18,39 @@ int ProtoHelp::net2int(const char *buf)
 	return socket_ops::network_to_host_long(result);
 }
 
-std::string ProtoHelp::encode(const PackagePtr &package)
+int ProtoHelp::net2int(int i)
 {
-	std::string result("PP");
-	// 标识符 + 消息包的总大小(4bytes)，先占位
-	result.resize(kFlagLen + kTotalLen);
+	return socket_ops::network_to_host_long(i);
+}
 
-	// 增加消息序列号
-	int be32 = socket_ops::host_to_network_long(package->id);
-	result.append((char*)&be32, kIDLen);
-	std::string typeName = std::move(package->typeName);
-	be32 = socket_ops::host_to_network_long(package->typeNameLen);
-	// 类型名的长度(固定4bytes)
-	result.append((char*)&be32, kTypeNameLen);
-	// 类型名
-	result.append(typeName.c_str(), package->typeNameLen);
-	// protobuf数据
-	if (package->msgPtr->AppendToString(&result)) {
+BufferPtr ProtoHelp::encode(const PackagePtr &package)
+{	
+	std::string content;
+	content.resize(package->msgPtr->ByteSize());
+	if (package->msgPtr->SerializePartialToArray(&content[0], content.size())) {
+		BufferPtr buffer(new Buffer());
+		buffer->append("PP");
+		// 标识符 + 消息包的总大小(4bytes)，先占位
+		buffer->appendInt32(0);
+
+		// 增加消息序列号
+		int be32 = socket_ops::host_to_network_long(package->id);
+		buffer->appendInt32(be32);
+
+		std::string typeName = std::move(package->typeName);
+		be32 = socket_ops::host_to_network_long(package->typeNameLen);
+		// 类型名的长度(固定4bytes)
+		buffer->appendInt32(be32);
+		// 类型名
+		buffer->append(&typeName[0], package->typeNameLen);
+		// 消息内容
+		buffer->append(content);
 		// 最后在头四个字节填充消息体大小
-		int bodyLen = socket_ops::host_to_network_long(result.size());
-		std::copy((char*)&bodyLen, ((char*)&bodyLen) + kTotalLen, result.begin() + kFlagLen);
-	} else {
-		result.clear();
+		int bodyLen = socket_ops::host_to_network_long(buffer->readableBytes());
+		std::memcpy((char*)(buffer->peek() + kFlagLen), (char*)&bodyLen, kTotalLen);
+		return buffer;
 	}
-
-	return result;
+	return nullptr;
 }
 
 PackagePtr ProtoHelp::decode(Buffer &buf)
@@ -63,28 +71,25 @@ PackagePtr ProtoHelp::decode(Buffer &buf)
 		return nullptr;
 	}
 
-	int totalSize = net2int(buf.peek() + kFlagLen);
-	if ((int)buf.readableBytes() + kFlagLen < totalSize) {
-		std::cout << "buffer read able bytes error:" << buf.readableBytes() << ",total:" << totalSize << std::endl;
-		return nullptr;
-	}
-
+	buf.retrieveInt16();
+	int totalSize = net2int(buf.readInt32());
 	if (totalSize <= 0 || totalSize > kMaxPackageLen) {
-		buf.retrieveInt8();
 		std::cout << "total size error:" << totalSize << std::endl;
 		return nullptr;
 	}
 
-	buf.retrieve(kFlagLen + kTotalLen);
-	int id = net2int(buf.peek());
-	buf.retrieve(kIDLen);
-	int typeNameLen = net2int(buf.peek());
+	if ((int)buf.readableBytes() + kFlagLen + kTotalLen < totalSize) {
+		std::cout << "buffer read able bytes error:" << buf.readableBytes() << ",total:" << totalSize << std::endl;
+		return nullptr;
+	}
+
+	int id = net2int(buf.readInt32());
+	int typeNameLen = net2int(buf.readInt32());
 	if (typeNameLen <= 0 || typeNameLen > 1024) {
 		std::cout << "type name len error:" << typeNameLen << std::endl;
 		return nullptr;
 	}
 
-	buf.retrieve(kTypeNameLen);
 	std::string typeName = buf.retrieveAsString(typeNameLen);
 	google::protobuf::Message *msg = createMessage(typeName);
 	int msgLen = totalSize - kFlagLen - kTotalLen - kIDLen - kTypeNameLen - typeNameLen;

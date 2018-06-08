@@ -4,8 +4,17 @@
 #include "google/protobuf/message.h"
 
 class session;
+class Buffer;
+struct Package;
 
+typedef std::shared_ptr<session> SessionPtr;
 typedef std::shared_ptr<google::protobuf::Message> MessagePtr;
+typedef std::shared_ptr<Package> PackagePtr;
+typedef std::shared_ptr<Buffer> BufferPtr;
+
+typedef std::function<void(const SessionPtr&, const PackagePtr&)> Task;
+typedef std::function<void(int error, const PackagePtr &reqMsgPtr, const PackagePtr &rspMsgPtr)> Response;
+
 struct Package {
 	Package() 
 	: totalSize(0)
@@ -26,9 +35,3 @@ struct Package {
 	MessagePtr msgPtr;		// protobufœ˚œ¢
 };
 
-typedef std::shared_ptr<session> SessionPtr;
-typedef std::shared_ptr<google::protobuf::Message> MessagePtr;
-typedef std::shared_ptr<Package> PackagePtr;
-
-typedef std::function<void(const SessionPtr&, const PackagePtr&)> Task;
-typedef std::function<void(int error, const PackagePtr &reqMsgPtr, const PackagePtr &rspMsgPtr)> Response;

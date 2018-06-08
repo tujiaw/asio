@@ -37,6 +37,7 @@ public:
     QPushButton *pbDisconnect;
     QHBoxLayout *horizontalLayout_2;
     QLabel *label_2;
+    QLineEdit *leIntervalMillisecond;
     QPushButton *pbStart;
     QPushButton *pbStop;
     QPushButton *pbHello;
@@ -53,7 +54,7 @@ public:
     {
         if (ConnectorClass->objectName().isEmpty())
             ConnectorClass->setObjectName(QStringLiteral("ConnectorClass"));
-        ConnectorClass->resize(606, 407);
+        ConnectorClass->resize(595, 407);
         verticalLayout = new QVBoxLayout(ConnectorClass);
         verticalLayout->setSpacing(6);
         verticalLayout->setContentsMargins(11, 11, 11, 11);
@@ -91,6 +92,12 @@ public:
         label_2->setObjectName(QStringLiteral("label_2"));
 
         horizontalLayout_2->addWidget(label_2);
+
+        leIntervalMillisecond = new QLineEdit(ConnectorClass);
+        leIntervalMillisecond->setObjectName(QStringLiteral("leIntervalMillisecond"));
+        leIntervalMillisecond->setMaximumSize(QSize(50, 16777215));
+
+        horizontalLayout_2->addWidget(leIntervalMillisecond);
 
         pbStart = new QPushButton(ConnectorClass);
         pbStart->setObjectName(QStringLiteral("pbStart"));
@@ -162,6 +169,7 @@ public:
         pbConnect->setText(QApplication::translate("ConnectorClass", "Connect", Q_NULLPTR));
         pbDisconnect->setText(QApplication::translate("ConnectorClass", "Disconnect", Q_NULLPTR));
         label_2->setText(QApplication::translate("ConnectorClass", "Send data:", Q_NULLPTR));
+        leIntervalMillisecond->setText(QApplication::translate("ConnectorClass", "1000", Q_NULLPTR));
         pbStart->setText(QApplication::translate("ConnectorClass", "Start", Q_NULLPTR));
         pbStop->setText(QApplication::translate("ConnectorClass", "Stop", Q_NULLPTR));
         pbHello->setText(QApplication::translate("ConnectorClass", "Hello", Q_NULLPTR));

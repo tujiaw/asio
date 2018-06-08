@@ -20,9 +20,11 @@ void session::start()
 void session::replyMessage(const PackagePtr &rspPtr)
 {
 	if (rspPtr) {
-		std::string buf = ProtoHelp::encode(rspPtr);
-		writeBuffer_.append(buf);
-		onWrite();
+		std::cout << "reply " << rspPtr->id << std::endl;
+		BufferPtr writeBuffer = ProtoHelp::encode(rspPtr);
+		if (writeBuffer) {
+			onWrite(writeBuffer);
+		}
 	}
 }
 
@@ -33,32 +35,39 @@ void session::onRead()
 		[this, self](boost::system::error_code ec, std::size_t length)
 	{
 		if (!ec) {
+			std::cout << "onRead length:" << length << ",threadid:" << std::this_thread::get_id() << std::endl;
 			readBuffer_.append(tempBuf_, length);
-			PackagePtr pack = ProtoHelp::decode(readBuffer_);
-			if (pack) {
-				TaskManager::instance()->handleMessage(pack, self);
-			}
+			do {
+				PackagePtr pack = ProtoHelp::decode(readBuffer_);
+				if (pack) {
+					TaskManager::instance()->handleMessage(pack, self);
+				} else {
+					break;
+				}
+			} while (1);
 
 			onRead();
+		} else {
+			std::cout << "onRead error:" << ec << std::endl;
 		}
 	});
 }
 
-void session::onWrite()
+void session::onWrite(BufferPtr writeBuffer)
 {
-	int readLen = writeBuffer_.readableBytes();
-	if (readLen <= 0) {
+	std::cout << "xxx:" << std::this_thread::get_id() << std::endl;
+	int writeLen = writeBuffer->readableBytes();
+	if (writeLen <= 0) {
 		return;
 	}
 
 	auto self(shared_from_this());
-	boost::asio::async_write(socket_, boost::asio::buffer(writeBuffer_.peekRetrieve(readLen), readLen),
-		[this, self](boost::system::error_code ec, std::size_t length)
+	boost::asio::async_write(socket_, boost::asio::buffer(writeBuffer->peek(), writeLen),
+		[this, self, writeBuffer](boost::system::error_code ec, std::size_t length)
 	{
-		if (!ec)
-		{
-			onWrite();
-			std::cout << "write length:" << length << std::endl;
+		if (!ec) {
+			writeBuffer->retrieve(length);
+			onWrite(writeBuffer);
 		}
 	});
 }

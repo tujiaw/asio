@@ -3,14 +3,12 @@
 
 void Buffer::appendInt32(__int32 x)
 {
-	__int32 be32 = htonl(x);
-	append(&be32, sizeof(be32));
+	append(&x, sizeof(x));
 }
 
 void Buffer::appendInt16(__int16 x)
 {
-	__int16 be16 = htons(x);
-	append(&be16, sizeof(be16));
+	append(&x, sizeof(x));
 }
 
 void Buffer::appendInt8(__int8 x)
@@ -44,7 +42,7 @@ __int32 Buffer::peekInt32() const
 	assert(readableBytes() >= sizeof(__int32));
 	__int32 be32 = 0;
 	::memcpy(&be32, peek(), sizeof(be32));
-	return ntohl(be32);
+	return be32;
 }
 
 __int16 Buffer::peekInt16() const
@@ -52,7 +50,7 @@ __int16 Buffer::peekInt16() const
 	assert(readableBytes() >= sizeof(__int16));
 	__int16 be16 = 0;
 	::memcpy(&be16, peek(), sizeof(be16));
-	return htons(be16);
+	return be16;
 }
 
 __int8 Buffer::peekInt8() const
@@ -64,14 +62,12 @@ __int8 Buffer::peekInt8() const
 
 void Buffer::prependInt32(__int32 x)
 {
-	__int32 be32 = htonl(x);
-	prepend(&be32, sizeof(be32));
+	prepend(&x, sizeof(x));
 }
 
 void Buffer::prependInt16(__int16 x)
 {
-	__int16 be16 = htons(x);
-	prepend(&be16, sizeof(be16));
+	prepend(&x, sizeof(x));
 }
 
 void Buffer::prependInt8(__int8 x)

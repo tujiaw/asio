@@ -1,6 +1,5 @@
 #pragma once
 
-#include <boost/enable_shared_from_this.hpp>
 #include <boost/asio.hpp>
 #include <thread>
 #include <deque>
@@ -17,6 +16,7 @@ public:
 	~AsioClient();
 	void run();
 	void stop();
+	void close();
 
 	void sendMessage(const MessagePtr &msgPtr, int msTimeout);
 	void postMessage(const MessagePtr &msgPtr, const Response &res);
@@ -26,6 +26,7 @@ private:
 	void operator=(AsioClient &);
 	void onRead();
 	void onWrite();
+	void doClose();
 
 private:
 	boost::asio::io_service io_;
@@ -38,7 +39,7 @@ private:
 	char tempBuf_[kTempBufSize];
 	Buffer readBuffer_;
 
-	std::map<PackagePtr, Response> responseMap_;
+	std::map<int, std::pair<PackagePtr, Response>> responseMap_;
 	ThreadPool pool_;
 };
 

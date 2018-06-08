@@ -11,9 +11,11 @@ AsioClient::AsioClient(const std::string &address)
 		auto iter = resolver.resolve({ address.substr(0, pos), address.substr(pos + 1) });
 		boost::asio::async_connect(socket_, iter, [this](std::error_code ec, tcp::resolver::iterator) {
 			if (!ec) {
+				onRead();
 			}
 			std::cout << "connect " << ec.message() << std::endl;
 		});
+		runthread_ = std::move(std::thread([this](){ io_.run(); }));
 	}
 }
 AsioClient::~AsioClient()
@@ -23,15 +25,19 @@ AsioClient::~AsioClient()
 
 void AsioClient::run()
 {
-	runthread_ = std::move(std::thread([this]() {
-		io_.run();
-	}));
 }
 
 void AsioClient::stop()
 {
-	io_.stop();
-	runthread_.join();
+	if (!io_.stopped()) {
+		io_.stop();
+		runthread_.join();
+	}
+}
+
+void AsioClient::close()
+{
+	io_.post(std::bind(&AsioClient::doClose, this));
 }
 
 void AsioClient::sendMessage(const MessagePtr &msgPtr, int msTimeout)
@@ -46,7 +52,7 @@ void AsioClient::postMessage(const MessagePtr &msgPtr, const Response &res)
 	pacPtr->typeName = msgPtr->GetTypeName();
 	pacPtr->typeNameLen = msgPtr->GetTypeName().length();
 	pacPtr->msgPtr = msgPtr;
-	responseMap_[pacPtr] = res;
+	responseMap_[pacPtr->id] = std::make_pair(pacPtr, res);
 	io_.post([this, pacPtr] {
 		bool isProgress = !pendingList_.empty();
 		pendingList_.push_back(pacPtr);
@@ -62,21 +68,27 @@ void AsioClient::onRead()
 		[this](boost::system::error_code ec, std::size_t length)
 	{
 		if (ec) {
+			std::cout << "onRead error: " << ec;
 			return;
 		}
 		
 		readBuffer_.append(tempBuf_, length);
-		PackagePtr pack = ProtoHelp::decode(readBuffer_);
-		if (pack) {
-			for (auto iter = responseMap_.begin(); iter != responseMap_.end(); ++iter) {
-				if (iter->first->id == pack->id) {
-					Response resFunc = iter->second;
-					resFunc(0, iter->first, pack);
-					responseMap_.erase(iter);
-					break;
+
+		do {
+			PackagePtr pack = ProtoHelp::decode(readBuffer_);
+			if (pack) {
+				auto it = responseMap_.find(pack->id);
+				if (it != responseMap_.end()) {
+					Response resFunc = it->second.second;
+					resFunc(0, it->second.first, pack);
+					responseMap_.erase(it);
+				} else {
+					std::cout << "onRead id not find:" << pack->id << std::endl;
 				}
+			} else {
+				break;
 			}
-		}
+		} while (1);
 
 		onRead();
 	});
@@ -89,17 +101,22 @@ void AsioClient::onWrite()
 	}
 
 	PackagePtr pacPtr = pendingList_.front();
-	std::string buf = ProtoHelp::encode(pacPtr);
-	if (buf.size() > 0) {
-		boost::asio::async_write(socket_, boost::asio::buffer(buf), [this](std::error_code ec, std::size_t length) {
+	pendingList_.pop_front();
+	BufferPtr writeBuffer = ProtoHelp::encode(pacPtr);
+	if (writeBuffer) {
+		boost::asio::async_write(socket_, boost::asio::buffer(writeBuffer->peek(), writeBuffer->readableBytes()), 
+			[this](std::error_code ec, std::size_t length) {
 			if (!ec) {
-				pendingList_.pop_front();
-				if (!pendingList_.empty()) {
-					onWrite();
-				}
+				std::cout << "write length:" << length << std::endl;
+				onWrite();
 			} else {
-				socket_.close();
+				this->close();
 			}
 		});
 	}
+}
+
+void AsioClient::doClose()
+{
+	socket_.close();
 }

@@ -4,9 +4,6 @@
 #include <memory>
 #include <assert.h>
 
-class Buffer;
-typedef std::shared_ptr<Buffer> BufferPtr;
-
 class Buffer
 {
 public:
@@ -50,16 +47,12 @@ public:
 		return begin() + readerIndex_;
 	}
 
-	const char *peekRetrieve(size_t len)
-	{
-		const char* result = begin() + readerIndex_;
-		retrieve(len);
-		return result;
-	}
-
 	void retrieve(size_t len)
 	{
-		assert(len <= readableBytes());
+		//assert(len <= readableBytes());
+		if (len > readableBytes()) {
+			int i = 0;
+		}
 		if (len < readableBytes())
 		{
 			readerIndex_ += len;
