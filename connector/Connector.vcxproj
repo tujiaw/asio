@@ -29,8 +29,8 @@
   <ImportGroup Label="PropertySheets" />
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <OutDir>$(SolutionDir)build\bin\$(ProjectName)</OutDir>
-    <IntDir>$(SolutionDir)build\middle\$(ProjectName)</IntDir>
+    <OutDir>$(SolutionDir)bin</OutDir>
+    <IntDir>$(SolutionDir)build\$(ProjectName)</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <OutDir>$(SolutionDir)$(Platform)\$(Configuration)\</OutDir>
@@ -38,7 +38,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <PreprocessorDefinitions>UNICODE;WIN32;WIN64;QT_CORE_LIB;QT_GUI_LIB;QT_NETWORK_LIB;QT_WIDGETS_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>.\GeneratedFiles;.;$(QTDIR)\include;.\GeneratedFiles\$(ConfigurationName);$(QTDIR)\include\QtCore;$(QTDIR)\include\QtGui;$(QTDIR)\include\QtNetwork;$(QTDIR)\include\QtWidgets;$(SolutionDir)protobuf\include;$(SolutionDir)boost\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.\GeneratedFiles;.;$(QTDIR)\include;.\GeneratedFiles\$(ConfigurationName);$(QTDIR)\include\QtCore;$(QTDIR)\include\QtGui;$(QTDIR)\include\QtNetwork;$(QTDIR)\include\QtWidgets;$(SolutionDir);$(SolutionDir)asio\third\boost\include;$(SolutionDir)asio\third\protobuf\include;$(SolutionDir)asio\third\glog\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <Optimization>Disabled</Optimization>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
@@ -47,9 +47,9 @@
     <Link>
       <SubSystem>Windows</SubSystem>
       <OutputFile>$(OutDir)\$(ProjectName).exe</OutputFile>
-      <AdditionalLibraryDirectories>$(QTDIR)\lib;$(SolutionDir)protobuf\lib;$(SolutionDir)boost\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(QTDIR)\lib;$(SolutionDir)asio\third\boost\lib;$(SolutionDir)asio\third\protobuf\lib;$(SolutionDir)asio\third\glog\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>qtmaind.lib;Qt5Cored.lib;Qt5Guid.lib;Qt5Networkd.lib;Qt5Widgetsd.lib;libprotobufd.lib;libboost_system-vc120-mt-gd-1_65_1.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>qtmaind.lib;Qt5Cored.lib;Qt5Guid.lib;Qt5Networkd.lib;Qt5Widgetsd.lib;libboost_system-vc120-mt-gd-1_65_1.lib;libprotobufd.lib;glogd.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -69,8 +69,19 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\protobuf\include\addressbook.pb.cc" />
-    <ClCompile Include="Buffer.cpp" />
+    <ClCompile Include="..\asio\base\AsioClient.cpp" />
+    <ClCompile Include="..\asio\base\AsioServer.cpp" />
+    <ClCompile Include="..\asio\base\Buffer.cpp" />
+    <ClCompile Include="..\asio\base\ProtoHelp.cpp" />
+    <ClCompile Include="..\asio\base\session.cpp" />
+    <ClCompile Include="..\asio\base\TaskManager.cpp" />
+    <ClCompile Include="..\asio\base\threadpool.cpp" />
+    <ClCompile Include="..\asio\base\threadpoolthread.cpp" />
+    <ClCompile Include="..\asio\base\threadpool_p.cpp" />
+    <ClCompile Include="..\asio\base\util.cpp" />
+    <ClCompile Include="..\asio\msgclient.cpp" />
+    <ClCompile Include="..\asio\msgserver.cpp" />
+    <ClCompile Include="..\asio\proto\pb_base.pb.cc" />
     <ClCompile Include="Connector.cpp" />
     <ClCompile Include="GeneratedFiles\Debug\moc_Connector.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
@@ -85,14 +96,13 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="ProtoHelp.cpp" />
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="Connector.h">
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(QTDIR)\bin\moc.exe;%(FullPath)</AdditionalInputs>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Moc%27ing Connector.h...</Message>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">.\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cpp</Outputs>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o ".\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cpp"  -DUNICODE -DWIN32 -DWIN64 -DQT_CORE_LIB -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_WIDGETS_LIB  "-I.\GeneratedFiles" "-I." "-I$(QTDIR)\include" "-I.\GeneratedFiles\$(ConfigurationName)\." "-I$(QTDIR)\include\QtCore" "-I$(QTDIR)\include\QtGui" "-I$(QTDIR)\include\QtNetwork" "-I$(QTDIR)\include\QtWidgets" "-I$(SolutionDir)protobuf\include" "-I$(SolutionDir)boost\include"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o ".\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cpp"  -DUNICODE -DWIN32 -DWIN64 -DQT_CORE_LIB -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_WIDGETS_LIB  "-I.\GeneratedFiles" "-I." "-I$(QTDIR)\include" "-I.\GeneratedFiles\$(ConfigurationName)\." "-I$(QTDIR)\include\QtCore" "-I$(QTDIR)\include\QtGui" "-I$(QTDIR)\include\QtNetwork" "-I$(QTDIR)\include\QtWidgets" "-I$(SolutionDir)\." "-I$(SolutionDir)asio\third\boost\include" "-I$(SolutionDir)asio\third\protobuf\include" "-I$(SolutionDir)asio\third\glog\include"</Command>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(QTDIR)\bin\moc.exe;%(FullPath)</AdditionalInputs>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Moc%27ing Connector.h...</Message>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">.\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cpp</Outputs>
@@ -112,11 +122,22 @@
     </CustomBuild>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\protobuf\include\addressbook.pb.h" />
-    <ClInclude Include="Buffer.h" />
-    <ClInclude Include="Constant.h" />
+    <ClInclude Include="..\asio\base\AsioClient.h" />
+    <ClInclude Include="..\asio\base\AsioServer.h" />
+    <ClInclude Include="..\asio\base\Buffer.h" />
+    <ClInclude Include="..\asio\base\desc.h" />
+    <ClInclude Include="..\asio\base\ProtoHelp.h" />
+    <ClInclude Include="..\asio\base\runnable.h" />
+    <ClInclude Include="..\asio\base\session.h" />
+    <ClInclude Include="..\asio\base\TaskManager.h" />
+    <ClInclude Include="..\asio\base\threadpool.h" />
+    <ClInclude Include="..\asio\base\threadpoolthread.h" />
+    <ClInclude Include="..\asio\base\threadpool_p.h" />
+    <ClInclude Include="..\asio\base\util.h" />
+    <ClInclude Include="..\asio\msgclient.h" />
+    <ClInclude Include="..\asio\msgserver.h" />
+    <ClInclude Include="..\asio\proto\pb_base.pb.h" />
     <ClInclude Include="GeneratedFiles\ui_Connector.h" />
-    <ClInclude Include="ProtoHelp.h" />
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="Connector.qrc">
