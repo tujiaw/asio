@@ -9,7 +9,7 @@ static const int kFlagLen = sizeof(emptyPackage.flag);
 static const int kTotalLen = sizeof(emptyPackage.totalSize);
 static const int kIDLen = sizeof(emptyPackage.id);
 static const int kTypeNameLen = sizeof(emptyPackage.typeNameLen);
-static const int kMaxPackageLen = 10 * 1024 * 1024;
+static const int kMaxPackageLen = 1024 * 1024 * 1024;
 
 int ProtoHelp::net2int(const char *buf)
 {
@@ -28,34 +28,33 @@ int ProtoHelp::int2net(int i)
 	return socket_ops::host_to_network_long(i);
 }
 
-BufferPtr ProtoHelp::encode(const PackagePtr &package)
-{	
-	std::string content;
-	content.resize(package->msgPtr->ByteSize());
-	if (package->msgPtr->SerializePartialToArray(&content[0], content.size())) {
-		BufferPtr buffer(new Buffer());
-		buffer->append("PP");
-		// 标识符 + 消息包的总大小(4bytes)，先占位
-		buffer->appendInt32(0);
+bool ProtoHelp::encode(const PackagePtr &package, BufferPtr &buffer)
+{
+    std::string content;
+    content.resize(package->msgPtr->ByteSize());
+    if (package->msgPtr->SerializePartialToArray(&content[0], content.size())) {
+        buffer->append("PP");
+        // 标识符 + 消息包的总大小(4bytes)，先占位
+        buffer->appendInt32(0);
 
-		// 增加消息序列号
-		int be32 = int2net(package->id);
-		buffer->appendInt32(be32);
+        // 增加消息序列号
+        int be32 = int2net(package->id);
+        buffer->appendInt32(be32);
 
-		std::string typeName = std::move(package->typeName);
-		be32 = int2net(package->typeNameLen);
-		// 类型名的长度(固定4bytes)
-		buffer->appendInt32(be32);
-		// 类型名
-		buffer->append(&typeName[0], package->typeNameLen);
-		// 消息内容
-		buffer->append(content);
-		// 最后在头四个字节填充消息体大小
-		int bodyLen = int2net(buffer->readableBytes());
-		std::memcpy((char*)(buffer->peek() + kFlagLen), (char*)&bodyLen, kTotalLen);
-		return buffer;
-	}
-	return nullptr;
+        std::string typeName = std::move(package->typeName);
+        be32 = int2net(package->typeNameLen);
+        // 类型名的长度(固定4bytes)
+        buffer->appendInt32(be32);
+        // 类型名
+        buffer->append(&typeName[0], package->typeNameLen);
+        // 消息内容
+        buffer->append(content);
+        // 最后在头四个字节填充消息体大小
+        int bodyLen = int2net(buffer->readableBytes());
+        std::memcpy((char*)(buffer->peek() + kFlagLen), (char*)&bodyLen, kTotalLen);
+        return true;
+    }
+    return false;
 }
 
 PackagePtr ProtoHelp::decode(Buffer &buf)

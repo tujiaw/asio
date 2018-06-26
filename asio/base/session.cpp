@@ -8,7 +8,7 @@
 
 using boost::asio::ip::tcp;
 
-static const int kTempBufSize = 1024 * 10;
+static const int kTempBufSize = boost::asio::detail::default_max_transfer_size;
 
 std::string endpoint2str(const tcp::endpoint &endpoint)
 {
@@ -143,6 +143,10 @@ void Session::onWrite(BufferPtr writeBuffer)
 		[this, self, writeBuffer](boost::system::error_code ec, std::size_t length)
 	{
 		if (!ec) {
+            if (length != 40) {
+                LOG(INFO) << "onWrite size:" << length;
+            }
+            
 			writeBuffer->retrieve(length);
 			onWrite(writeBuffer);
 		}
@@ -151,10 +155,10 @@ void Session::onWrite(BufferPtr writeBuffer)
 
 void Session::postPackage(const PackagePtr &pack)
 {
-	BufferPtr writeBuffer = ProtoHelp::encode(pack);
-	if (writeBuffer) {
-		d->io_.post([this, writeBuffer]{ onWrite(writeBuffer); });
-	}
+    BufferPtr writeBuffer(new Buffer());
+    if (ProtoHelp::encode(pack, writeBuffer)) {
+        d->io_.post([this, writeBuffer]{ onWrite(writeBuffer); });
+    }
 }
 
 //////////////////////////////////////////////////////////////////////////

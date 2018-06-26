@@ -51,7 +51,7 @@ void AsioServer::init()
 	});
 	this->addHandleMessage(PbBase::HeartbeatReq::descriptor()->full_name(), [](const SessionPtr &sessionPtr, const PackagePtr &reqPtr) {
 		PbBase::HeartbeatReq *msg = static_cast<PbBase::HeartbeatReq*>(reqPtr->msgPtr.get());
-		LOG(INFO) << "host:" << sessionPtr->remoteEndpoint() << ",cpu:" << msg->cpu() << ",memory:" << msg->memory();
+		// LOG(INFO) << "host:" << sessionPtr->remoteEndpoint() << ",cpu:" << msg->cpu() << ",memory:" << msg->memory();
 		PbBase::HeartbeatRsp *rsp = new PbBase::HeartbeatRsp();
 		rsp->set_servertime(util::currentMillisecond());
 		sessionPtr->replyMessage(reqPtr, MessagePtr(rsp));

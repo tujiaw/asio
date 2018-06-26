@@ -714,7 +714,7 @@ class EchoReq : public ::google::protobuf::Message /* @@protoc_insertion_point(c
 
   // accessors -------------------------------------------------------
 
-  // string content = 1;
+  // bytes content = 1;
   void clear_content();
   static const int kContentFieldNumber = 1;
   const ::std::string& content() const;
@@ -723,7 +723,7 @@ class EchoReq : public ::google::protobuf::Message /* @@protoc_insertion_point(c
   void set_content(::std::string&& value);
   #endif
   void set_content(const char* value);
-  void set_content(const char* value, size_t size);
+  void set_content(const void* value, size_t size);
   ::std::string* mutable_content();
   ::std::string* release_content();
   void set_allocated_content(::std::string* content);
@@ -819,7 +819,7 @@ class EchoRsp : public ::google::protobuf::Message /* @@protoc_insertion_point(c
 
   // accessors -------------------------------------------------------
 
-  // string content = 2;
+  // bytes content = 2;
   void clear_content();
   static const int kContentFieldNumber = 2;
   const ::std::string& content() const;
@@ -828,7 +828,7 @@ class EchoRsp : public ::google::protobuf::Message /* @@protoc_insertion_point(c
   void set_content(::std::string&& value);
   #endif
   void set_content(const char* value);
-  void set_content(const char* value, size_t size);
+  void set_content(const void* value, size_t size);
   ::std::string* mutable_content();
   ::std::string* release_content();
   void set_allocated_content(::std::string* content);
@@ -1404,7 +1404,7 @@ inline void HelloRsp::set_allocated_hello(::std::string* hello) {
 
 // EchoReq
 
-// string content = 1;
+// bytes content = 1;
 inline void EchoReq::clear_content() {
   content_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
 }
@@ -1431,7 +1431,7 @@ inline void EchoReq::set_content(const char* value) {
   content_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), ::std::string(value));
   // @@protoc_insertion_point(field_set_char:PbBase.EchoReq.content)
 }
-inline void EchoReq::set_content(const char* value, size_t size) {
+inline void EchoReq::set_content(const void* value, size_t size) {
   
   content_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(),
       ::std::string(reinterpret_cast<const char*>(value), size));
@@ -1475,7 +1475,7 @@ inline void EchoRsp::set_errorcode(::google::protobuf::int32 value) {
   // @@protoc_insertion_point(field_set:PbBase.EchoRsp.errorcode)
 }
 
-// string content = 2;
+// bytes content = 2;
 inline void EchoRsp::clear_content() {
   content_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
 }
@@ -1502,7 +1502,7 @@ inline void EchoRsp::set_content(const char* value) {
   content_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), ::std::string(value));
   // @@protoc_insertion_point(field_set_char:PbBase.EchoRsp.content)
 }
-inline void EchoRsp::set_content(const char* value, size_t size) {
+inline void EchoRsp::set_content(const void* value, size_t size) {
   
   content_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(),
       ::std::string(reinterpret_cast<const char*>(value), size));

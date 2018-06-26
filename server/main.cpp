@@ -29,6 +29,7 @@ int main(int argc, char* argv[])
 		PbBase::EchoRsp *rsp = new PbBase::EchoRsp();
 		rsp->set_errorcode(0);
 		rsp->set_content(req->content());
+        LOG(INFO) << "ECHO request:" << req->content().size() << ", last:" << req->content().substr(req->content().length() - 3);
 		sessionPtr->replyMessage(reqPtr, MessagePtr(rsp));
 	});
 

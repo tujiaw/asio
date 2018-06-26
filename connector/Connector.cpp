@@ -7,7 +7,7 @@
 
 Connector::Connector(QWidget *parent)
 	: QDialog(parent), id_(100), timer_(new QTimer(this))
-	, conn_("127.0.0.1:5566", 3)
+	, conn_("127.0.0.1:5566", 30000)
 {
 	ui.setupUi(this);
 
@@ -70,19 +70,33 @@ void Connector::onHello()
 void Connector::sendMsg()
 {
 	++id_;
-	MessagePtr msgPtr(new PbBase::HelloReq());
-	PbBase::HelloReq *hello = (PbBase::HelloReq*)msgPtr.get();
-	hello->set_name("tujiaw");
-	hello->set_id(id_);
-	hello->set_address((QString::number(id_) + ui.teSendData->toPlainText()).toStdString());
-	//conn_.postMessage(msgPtr, [](int error, const PackagePtr &reqMsgPtr, const PackagePtr &rspMsgPtr) {
-	//	if (rspMsgPtr) {
-	//		
-	//	}
-	//});
-	MessagePtr rsp;
-	if (0 == conn_.sendMessage(msgPtr, rsp)) {
-		PbBase::HelloRsp *msg = static_cast<PbBase::HelloRsp*>(rsp.get());
-		ui.lwRecvData->addItem(QString::fromStdString(msg->hello()));
-	}
+    std::string content = (QString::number(id_) + ":" + ui.teSendData->toPlainText()).toStdString();
+	MessagePtr msgPtr(new PbBase::EchoReq());
+    PbBase::EchoReq *req = (PbBase::EchoReq*)msgPtr.get();
+    req->set_content(content);
+
+    conn_.postMessage(msgPtr, [content](int error, const PackagePtr &reqMsgPtr, const PackagePtr &rspMsgPtr) {
+        if (rspMsgPtr) {
+            PbBase::EchoRsp *msg = static_cast<PbBase::EchoRsp*>(rspMsgPtr->msgPtr.get());
+            std::string resContent = msg->content();
+            QByteArray xx = QString::fromStdString(resContent).toLocal8Bit();
+            if (resContent == content) {
+                std::string id = content.substr(0, content.find(':'));
+                LOG(INFO) << id << ",ok";
+            } else {
+                LOG(ERROR) << "failed";
+            }
+        }
+    });
+
+	//MessagePtr rsp;
+	//if (0 == conn_.sendMessage(msgPtr, rsp)) {
+ //       PbBase::EchoRsp *msg = static_cast<PbBase::EchoRsp*>(rsp.get());
+ //       std::string resContent = msg->content();
+ //       QByteArray xx = QString::fromStdString(resContent).toLocal8Bit();
+ //       if (resContent == content) {
+ //           std::string id = content.substr(0, content.find(':'));
+ //           ui.lwRecvData->addItem(QString::fromStdString(id));
+ //       }
+	//}
 }

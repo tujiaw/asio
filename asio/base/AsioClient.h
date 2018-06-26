@@ -45,9 +45,10 @@ private:
 	int heartbeatSeconds_;
 	std::atomic<bool> isOnline_;
 
-	static const int kTempBufSize = 1024 * 10;
-	char tempBuf_[kTempBufSize];
+    static const int kTempBufSize = boost::asio::detail::default_max_transfer_size;
+    char tempBuf_[kTempBufSize];
 	Buffer readBuffer_;
+    BufferPtr writeBuffer_;
 
 	std::mutex mutex_;
 	std::condition_variable cond_;

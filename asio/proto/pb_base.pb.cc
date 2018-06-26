@@ -240,8 +240,8 @@ void AddDescriptorsImpl() {
       "InfoPub\022\r\n\005hello\030\001 \001(\t\"5\n\010HelloReq\022\014\n\004na"
       "me\030\001 \001(\t\022\n\n\002id\030\002 \001(\005\022\017\n\007address\030\003 \001(\014\"\031\n"
       "\010HelloRsp\022\r\n\005hello\030\001 \001(\014\"\032\n\007EchoReq\022\017\n\007c"
-      "ontent\030\001 \001(\t\"-\n\007EchoRsp\022\021\n\terrorcode\030\001 \001"
-      "(\005\022\017\n\007content\030\002 \001(\t\"+\n\014HeartbeatReq\022\013\n\003c"
+      "ontent\030\001 \001(\014\"-\n\007EchoRsp\022\021\n\terrorcode\030\001 \001"
+      "(\005\022\017\n\007content\030\002 \001(\014\"+\n\014HeartbeatReq\022\013\n\003c"
       "pu\030\001 \001(\005\022\016\n\006memory\030\002 \001(\005\"\"\n\014HeartbeatRsp"
       "\022\022\n\nserverTime\030\001 \001(\003b\006proto3"
   };
@@ -2048,16 +2048,12 @@ bool EchoReq::MergePartialFromCodedStream(
     tag = p.first;
     if (!p.second) goto handle_unusual;
     switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
-      // string content = 1;
+      // bytes content = 1;
       case 1: {
         if (static_cast< ::google::protobuf::uint8>(tag) ==
             static_cast< ::google::protobuf::uint8>(10u /* 10 & 0xFF */)) {
-          DO_(::google::protobuf::internal::WireFormatLite::ReadString(
+          DO_(::google::protobuf::internal::WireFormatLite::ReadBytes(
                 input, this->mutable_content()));
-          DO_(::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
-            this->content().data(), static_cast<int>(this->content().length()),
-            ::google::protobuf::internal::WireFormatLite::PARSE,
-            "PbBase.EchoReq.content"));
         } else {
           goto handle_unusual;
         }
@@ -2090,13 +2086,9 @@ void EchoReq::SerializeWithCachedSizes(
   ::google::protobuf::uint32 cached_has_bits = 0;
   (void) cached_has_bits;
 
-  // string content = 1;
+  // bytes content = 1;
   if (this->content().size() > 0) {
-    ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
-      this->content().data(), static_cast<int>(this->content().length()),
-      ::google::protobuf::internal::WireFormatLite::SERIALIZE,
-      "PbBase.EchoReq.content");
-    ::google::protobuf::internal::WireFormatLite::WriteStringMaybeAliased(
+    ::google::protobuf::internal::WireFormatLite::WriteBytesMaybeAliased(
       1, this->content(), output);
   }
 
@@ -2114,14 +2106,10 @@ void EchoReq::SerializeWithCachedSizes(
   ::google::protobuf::uint32 cached_has_bits = 0;
   (void) cached_has_bits;
 
-  // string content = 1;
+  // bytes content = 1;
   if (this->content().size() > 0) {
-    ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
-      this->content().data(), static_cast<int>(this->content().length()),
-      ::google::protobuf::internal::WireFormatLite::SERIALIZE,
-      "PbBase.EchoReq.content");
     target =
-      ::google::protobuf::internal::WireFormatLite::WriteStringToArray(
+      ::google::protobuf::internal::WireFormatLite::WriteBytesToArray(
         1, this->content(), target);
   }
 
@@ -2142,10 +2130,10 @@ size_t EchoReq::ByteSizeLong() const {
       ::google::protobuf::internal::WireFormat::ComputeUnknownFieldsSize(
         (::google::protobuf::internal::GetProto3PreserveUnknownsDefault()   ? _internal_metadata_.unknown_fields()   : _internal_metadata_.default_instance()));
   }
-  // string content = 1;
+  // bytes content = 1;
   if (this->content().size() > 0) {
     total_size += 1 +
-      ::google::protobuf::internal::WireFormatLite::StringSize(
+      ::google::protobuf::internal::WireFormatLite::BytesSize(
         this->content());
   }
 
@@ -2221,7 +2209,7 @@ void EchoReq::InternalSwap(EchoReq* other) {
 #if PROTOBUF_INLINE_NOT_IN_HEADERS
 // EchoReq
 
-// string content = 1;
+// bytes content = 1;
 void EchoReq::clear_content() {
   content_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
 }
@@ -2248,7 +2236,7 @@ void EchoReq::set_content(const char* value) {
   content_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), ::std::string(value));
   // @@protoc_insertion_point(field_set_char:PbBase.EchoReq.content)
 }
-void EchoReq::set_content(const char* value, size_t size) {
+void EchoReq::set_content(const void* value, size_t size) {
   
   content_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(),
       ::std::string(reinterpret_cast<const char*>(value), size));
@@ -2377,16 +2365,12 @@ bool EchoRsp::MergePartialFromCodedStream(
         break;
       }
 
-      // string content = 2;
+      // bytes content = 2;
       case 2: {
         if (static_cast< ::google::protobuf::uint8>(tag) ==
             static_cast< ::google::protobuf::uint8>(18u /* 18 & 0xFF */)) {
-          DO_(::google::protobuf::internal::WireFormatLite::ReadString(
+          DO_(::google::protobuf::internal::WireFormatLite::ReadBytes(
                 input, this->mutable_content()));
-          DO_(::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
-            this->content().data(), static_cast<int>(this->content().length()),
-            ::google::protobuf::internal::WireFormatLite::PARSE,
-            "PbBase.EchoRsp.content"));
         } else {
           goto handle_unusual;
         }
@@ -2424,13 +2408,9 @@ void EchoRsp::SerializeWithCachedSizes(
     ::google::protobuf::internal::WireFormatLite::WriteInt32(1, this->errorcode(), output);
   }
 
-  // string content = 2;
+  // bytes content = 2;
   if (this->content().size() > 0) {
-    ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
-      this->content().data(), static_cast<int>(this->content().length()),
-      ::google::protobuf::internal::WireFormatLite::SERIALIZE,
-      "PbBase.EchoRsp.content");
-    ::google::protobuf::internal::WireFormatLite::WriteStringMaybeAliased(
+    ::google::protobuf::internal::WireFormatLite::WriteBytesMaybeAliased(
       2, this->content(), output);
   }
 
@@ -2453,14 +2433,10 @@ void EchoRsp::SerializeWithCachedSizes(
     target = ::google::protobuf::internal::WireFormatLite::WriteInt32ToArray(1, this->errorcode(), target);
   }
 
-  // string content = 2;
+  // bytes content = 2;
   if (this->content().size() > 0) {
-    ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
-      this->content().data(), static_cast<int>(this->content().length()),
-      ::google::protobuf::internal::WireFormatLite::SERIALIZE,
-      "PbBase.EchoRsp.content");
     target =
-      ::google::protobuf::internal::WireFormatLite::WriteStringToArray(
+      ::google::protobuf::internal::WireFormatLite::WriteBytesToArray(
         2, this->content(), target);
   }
 
@@ -2481,10 +2457,10 @@ size_t EchoRsp::ByteSizeLong() const {
       ::google::protobuf::internal::WireFormat::ComputeUnknownFieldsSize(
         (::google::protobuf::internal::GetProto3PreserveUnknownsDefault()   ? _internal_metadata_.unknown_fields()   : _internal_metadata_.default_instance()));
   }
-  // string content = 2;
+  // bytes content = 2;
   if (this->content().size() > 0) {
     total_size += 1 +
-      ::google::protobuf::internal::WireFormatLite::StringSize(
+      ::google::protobuf::internal::WireFormatLite::BytesSize(
         this->content());
   }
 
@@ -2585,7 +2561,7 @@ void EchoRsp::set_errorcode(::google::protobuf::int32 value) {
   // @@protoc_insertion_point(field_set:PbBase.EchoRsp.errorcode)
 }
 
-// string content = 2;
+// bytes content = 2;
 void EchoRsp::clear_content() {
   content_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
 }
@@ -2612,7 +2588,7 @@ void EchoRsp::set_content(const char* value) {
   content_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), ::std::string(value));
   // @@protoc_insertion_point(field_set_char:PbBase.EchoRsp.content)
 }
-void EchoRsp::set_content(const char* value, size_t size) {
+void EchoRsp::set_content(const void* value, size_t size) {
   
   content_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(),
       ::std::string(reinterpret_cast<const char*>(value), size));

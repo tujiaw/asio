@@ -61,9 +61,6 @@
     <ClCompile Include="GeneratedFiles\qrc_Connector.cpp">
       <Filter>Generated Files</Filter>
     </ClCompile>
-    <ClCompile Include="Connector.cpp">
-      <Filter>Resource Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\asio\msgclient.cpp">
       <Filter>asio</Filter>
     </ClCompile>
@@ -102,6 +99,9 @@
     </ClCompile>
     <ClCompile Include="..\asio\base\util.cpp">
       <Filter>asio\base</Filter>
+    </ClCompile>
+    <ClCompile Include="Connector.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

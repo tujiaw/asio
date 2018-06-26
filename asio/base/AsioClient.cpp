@@ -5,7 +5,7 @@
 #include "asio/proto/pb_base.pb.h"
 
 AsioClient::AsioClient(const std::string &address, int heartbeatSeconds)
-	: address_(address), socket_(io_), id_(0), heartbeatSeconds_(heartbeatSeconds), isOnline_(false)
+    : address_(address), socket_(io_), id_(0), heartbeatSeconds_(heartbeatSeconds), isOnline_(false), writeBuffer_(new Buffer())
 {
 }
 
@@ -43,7 +43,8 @@ void AsioClient::addHandlePublish(const std::string &typeName, const PublishFunc
 
 void AsioClient::stop()
 {
-	close();
+    io_.stop();
+    close();
 	if (runthread_.joinable()) {
 		runthread_.join();
 	}
@@ -127,12 +128,15 @@ void AsioClient::onRead()
 			return;
 		}
 		
+        if (length != 40) {
+            LOG(INFO) << "onRead:" << length;
+        }
+        
 		readBuffer_.append(tempBuf_, length);
 
 		do {
 			PackagePtr pack = ProtoHelp::decode(readBuffer_);
 			if (pack) {
-				LOG(INFO) << "response id:" << pack->id;
 				if (pack->id == -1) {
 					// ÍÆËÍÏûÏ¢
 					auto it = publishMap_.find(pack->typeName);
@@ -175,18 +179,19 @@ void AsioClient::onWrite()
 
 	PackagePtr pacPtr = pendingList_.front();
 	pendingList_.pop_front();
-	BufferPtr writeBuffer = ProtoHelp::encode(pacPtr);
-	if (writeBuffer) {
-		boost::asio::async_write(socket_, boost::asio::buffer(writeBuffer->peek(), writeBuffer->readableBytes()), 
-			[this](std::error_code ec, std::size_t length) {
-			if (!ec) {
-				onWrite();
-			} else {
-				LOG(ERROR) << "async write error: " << ec.message();
-				this->close();
-			}
-		});
-	}
+    if (ProtoHelp::encode(pacPtr, writeBuffer_)) {
+        boost::asio::async_write(socket_, boost::asio::buffer(writeBuffer_->peek(), writeBuffer_->readableBytes()),
+            [this](std::error_code ec, std::size_t length) {
+            if (!ec) {
+                LOG(INFO) << "onWrite:" << length;
+                writeBuffer_->retrieve(length);
+                onWrite();
+            } else {
+                LOG(ERROR) << "async write error: " << ec.message();
+                this->close();
+            }
+        });
+    }
 }
 
 void AsioClient::doClose()

@@ -40,13 +40,13 @@ message HelloRsp {
 
 message EchoReq
 {
-  string content = 1;
+  bytes content = 1;
 }
 
 message EchoRsp
 {
   int32 errorcode = 1;
-  string content = 2;
+  bytes content = 2;
 }
 
 message HeartbeatReq
