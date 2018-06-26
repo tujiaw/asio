@@ -9,6 +9,7 @@ $(SolutionDir)
 $(SolutionDir)asio\third\boost\include
 $(SolutionDir)asio\third\protobuf\include
 $(SolutionDir)asio\third\glog\include
+$(SolutionDir)asio\third\zlib\include
 ```
 ## 链接器
 常规->附加库目录：
@@ -16,10 +17,12 @@ $(SolutionDir)asio\third\glog\include
 $(SolutionDir)asio\third\boost\lib
 $(SolutionDir)asio\third\protobuf\lib
 $(SolutionDir)asio\third\glog\lib
+$(SolutionDir)asio\third\zlib\lib
 ```
 输入->附加依赖项：
 ```
 libboost_system-vc120-mt-gd-1_65_1.lib
 libprotobufd.lib
 glogd.lib
+zlibstatic.lib
 ```

@@ -55,14 +55,14 @@
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>$(SolutionDir);$(SolutionDir)asio\third\boost\include;$(SolutionDir)asio\third\protobuf\include;$(SolutionDir)asio\third\glog\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir);$(SolutionDir)asio\third\boost\include;$(SolutionDir)asio\third\protobuf\include;$(SolutionDir)asio\third\glog\include;$(SolutionDir)asio\third\zlib\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DisableSpecificWarnings>4800</DisableSpecificWarnings>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(SolutionDir)asio\third\boost\lib;$(SolutionDir)asio\third\protobuf\lib;$(SolutionDir)asio\third\glog\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>libboost_system-vc120-mt-gd-1_65_1.lib;libprotobufd.lib;glogd.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)asio\third\boost\lib;$(SolutionDir)asio\third\protobuf\lib;$(SolutionDir)asio\third\glog\lib;$(SolutionDir)asio\third\zlib\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>libboost_system-vc120-mt-gd-1_65_1.lib;libprotobufd.lib;glogd.lib;zlibstatic.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
