@@ -1,15 +1,14 @@
 #include "ProtoHelp.h"
 #include <boost/asio.hpp>
+#include <zlib.h>
 #include "Buffer.h"
 
 using namespace boost::asio::detail;
 
 static const Package emptyPackage;
-static const int kFlagLen = sizeof(emptyPackage.flag);
-static const int kTotalLen = sizeof(emptyPackage.totalSize);
-static const int kIDLen = sizeof(emptyPackage.id);
-static const int kTypeNameLen = sizeof(emptyPackage.typeNameLen);
+static const int kFlagLen = sizeof(emptyPackage.header.flag);
 static const int kMaxPackageLen = 1024 * 1024 * 1024;
+static const int kMinZipLen = 1024;
 
 int ProtoHelp::net2int(const char *buf)
 {
@@ -33,25 +32,25 @@ bool ProtoHelp::encode(const PackagePtr &package, BufferPtr &buffer)
     std::string content;
     content.resize(package->msgPtr->ByteSize());
     if (package->msgPtr->SerializePartialToArray(&content[0], content.size())) {
-        buffer->append("PP");
-        // 标识符 + 消息包的总大小(4bytes)，先占位
-        buffer->appendInt32(0);
+        if (content.size() > kMinZipLen) {
+            unsigned long bufferSize = compressBound(content.size());
+            std::string buffer(bufferSize, 0);
+            int errcode = compress((unsigned char*)&buffer[0], &bufferSize, (unsigned char*)&content[0], content.size());
+            if (errcode == Z_OK) {
+                package->header.iszip = 1;
+                content.assign(&buffer[0], bufferSize);
+            } else {
+                LOG(ERROR) << "compress error:" << errcode;
+            }
+        }
 
-        // 增加消息序列号
-        int be32 = int2net(package->id);
-        buffer->appendInt32(be32);
-
-        std::string typeName = std::move(package->typeName);
-        be32 = int2net(package->typeNameLen);
-        // 类型名的长度(固定4bytes)
-        buffer->appendInt32(be32);
-        // 类型名
-        buffer->append(&typeName[0], package->typeNameLen);
-        // 消息内容
+        package->typeName = package->msgPtr->GetTypeName();
+        package->header.typeNameLen = package->typeName.size();
+        package->header.msgSize = package->msgPtr->ByteSize();
+        package->header.pacSize = kPackageHeaderSize + package->typeName.size() + content.size();
+        buffer->append(&package->header, kPackageHeaderSize);
+        buffer->append(&package->typeName[0], package->header.typeNameLen);
         buffer->append(content);
-        // 最后在头四个字节填充消息体大小
-        int bodyLen = int2net(buffer->readableBytes());
-        std::memcpy((char*)(buffer->peek() + kFlagLen), (char*)&bodyLen, kTotalLen);
         return true;
     }
     return false;
@@ -61,7 +60,7 @@ PackagePtr ProtoHelp::decode(Buffer &buf)
 {
 	bool isOk = false;
 	char flags[kFlagLen];
-	while (buf.readableBytes() >= 11) {
+	while (buf.readableBytes() > kPackageHeaderSize) {
 		memcpy(flags, buf.peek(), kFlagLen);
 		if (flags[0] == 'P' || flags[1] == 'P') {
 			isOk = true;
@@ -75,39 +74,48 @@ PackagePtr ProtoHelp::decode(Buffer &buf)
 		return nullptr;
 	}
 
-	int totalSize = net2int(buf.peek() + kFlagLen);
-	if (totalSize <= 0 || totalSize > kMaxPackageLen) {
-		std::cout << "total size error:" << totalSize << std::endl;
+    PacHeader header;
+    memcpy(&header, buf.peek(), kPackageHeaderSize);
+	if (buf.readableBytes() < (std::size_t)header.pacSize) {
 		return nullptr;
 	}
 
-	if ((int)buf.readableBytes() < totalSize) {
-		return nullptr;
-	}
+    if (header.typeNameLen <= 0 || header.typeNameLen > 1024) {
+        std::cout << "type name len error:" << header.typeNameLen << std::endl;
+        return nullptr;
+    }
 
-	buf.retrieve(kFlagLen + kTotalLen);
-	int id = net2int(buf.readInt32());
-	int typeNameLen = net2int(buf.readInt32());
-	if (typeNameLen <= 0 || typeNameLen > 1024) {
-		std::cout << "type name len error:" << typeNameLen << std::endl;
-		return nullptr;
-	}
+    buf.retrieve(kPackageHeaderSize);
+	std::string typeName = buf.retrieveAsString(header.typeNameLen);
+    google::protobuf::Message *msg = createMessage(typeName);;
+    if (!msg) {
+        LOG(ERROR) << "create message failed:" << typeName;
+        return nullptr;
+    }
 
-	std::string typeName = buf.retrieveAsString(typeNameLen);
-	google::protobuf::Message *msg = createMessage(typeName);
-	int msgLen = totalSize - kFlagLen - kTotalLen - kIDLen - kTypeNameLen - typeNameLen;
-	if (msg && msg->ParseFromArray(buf.peek(), msgLen)) {
-		buf.retrieve(msgLen);
-		PackagePtr result(new Package());
-		result->totalSize = totalSize;
-		result->id = id;
-		result->typeNameLen = typeNameLen;
-		result->typeName = typeName;
-		result->msgPtr = MessagePtr(msg);
-		return result;
-	}
-	std::cout << "protobuf parse error:" << typeName << std::endl;
-	return nullptr;
+    bool parseResult = false;
+    if (header.iszip) {
+        unsigned long bufferSize = header.msgSize;
+        std::string buffer(bufferSize, 0);
+        int errcode = uncompress((unsigned char*)&buffer[0], &bufferSize, (unsigned char*)buf.peek(), header.pacSize - kPackageHeaderSize - header.typeNameLen);
+        if (errcode == Z_OK) {
+            parseResult = msg->ParseFromArray(&buffer[0], bufferSize);
+        } else {
+            LOG(ERROR) << "uncompress error:" << errcode;
+        }
+    } else {
+        parseResult = msg->ParseFromArray(buf.peek(), header.msgSize);
+    }
+
+    if (parseResult) {
+        buf.retrieve(header.msgSize);
+        PackagePtr result(new Package());
+        result->header = header;
+        result->typeName = typeName;
+        result->msgPtr = MessagePtr(msg);
+        return result;
+    }
+    return nullptr;
 }
 
 google::protobuf::Message* ProtoHelp::createMessage(const std::string & typeName)

@@ -21,6 +21,7 @@ struct SessionData {
 	SessionData(void* socket) 
 		: socket_(std::move(*(tcp::socket*)socket))
 		, io_(socket_.get_io_service())
+        , id_(0)
 	{
 	}
 
@@ -30,6 +31,7 @@ struct SessionData {
 	Buffer readBuffer_;
 	std::mutex subscribeMutex_;
 	std::vector<std::string> subscribeList_;
+    std::atomic<int> id_;
 };
 
 Session::Session(void* socket)
@@ -57,8 +59,7 @@ void Session::replyMessage(const PackagePtr &req, const MessagePtr &rspMsg)
 		return;
 	}
 	PackagePtr rspPtr(new Package());
-	rspPtr->id = req->id;
-	rspPtr->typeNameLen = rspMsg->GetTypeName().length();
+    rspPtr->header = req->header;
 	rspPtr->typeName = rspMsg->GetTypeName();
 	rspPtr->msgPtr = rspMsg;
 	postPackage(rspPtr);
@@ -78,8 +79,9 @@ void Session::publishMessage(const MessagePtr &msg)
 	}
 
 	PackagePtr pack(new Package());
-	pack->id = -1;
-	pack->typeNameLen = msg->GetTypeName().length();
+    pack->header.msgType = PacHeader::PUBSUB;
+    pack->header.msgId = ++d->id_;
+	pack->header.typeNameLen = msg->GetTypeName().length();
 	pack->typeName = msg->GetTypeName();
 	pack->msgPtr = msg;
 	postPackage(pack);

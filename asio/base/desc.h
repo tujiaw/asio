@@ -22,24 +22,39 @@ typedef std::function<void(const SessionPtr&, const PackagePtr&)> Task;
 typedef std::function<void(int error, const PackagePtr &reqMsgPtr, const PackagePtr &rspMsgPtr)> Response;
 typedef std::function<void(int error, const MessagePtr &pubMsgPtr)> PublishFunc;
 
-struct Package {
-    Package()
-        : totalSize(0)
-        , id(0)
-        , typeNameLen(0)
-        , msgPtr(nullptr)
-    {
+#pragma pack(push,1)
+struct PacHeader {
+    enum MsgType {
+        REQREP = 1,
+        PUBSUB
+    };
+
+    PacHeader() : msgType(0), typeNameLen(0), extInfo(0), msgId(0), msgSize(0), pacSize(0) {
         flag[0] = 'P';
         flag[1] = 'P';
     }
 
-    char flag[2];			// ��Ϣ��־'P','P'
-    int totalSize;			// ����package��С
+    char flag[2];
+    short msgType;
+    short typeNameLen;
+    union {
+        short extInfo;
+        struct {
+            unsigned char iszip : 1;
+        };
+    };
+    int msgId;
+    int msgSize;
+    int pacSize;
+};
+#pragma pack(pop)
 
-    int id;					// ��ϢID
-    int typeNameLen;		// ����������
-    std::string typeName;	// ������
-    MessagePtr msgPtr;		// protobuf��Ϣ
+const int kPackageHeaderSize = sizeof(PacHeader);
+
+struct Package {
+    PacHeader header;
+    std::string typeName;
+    MessagePtr msgPtr;
 };
 
 enum ErrorCode {

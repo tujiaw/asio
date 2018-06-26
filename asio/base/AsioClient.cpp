@@ -97,14 +97,15 @@ int AsioClient::postMessage(const MessagePtr &msgPtr, const Response &res)
 	}
 
 	PackagePtr pacPtr(new Package);
-	pacPtr->id = ++id_;
+    pacPtr->header.msgType = PacHeader::REQREP;
+	pacPtr->header.msgId = ++id_;
+    pacPtr->header.typeNameLen = msgPtr->GetTypeName().length();
 	pacPtr->typeName = msgPtr->GetTypeName();
-	pacPtr->typeNameLen = msgPtr->GetTypeName().length();
 	pacPtr->msgPtr = msgPtr;
 
 	{
 		std::unique_lock<std::mutex> lock(responseMutex_);
-		responseMap_[pacPtr->id] = std::make_pair(pacPtr, res);
+		responseMap_[pacPtr->header.msgId] = std::make_pair(pacPtr, res);
 	}
 
 	io_.post([this, pacPtr] {
@@ -137,7 +138,7 @@ void AsioClient::onRead()
 		do {
 			PackagePtr pack = ProtoHelp::decode(readBuffer_);
 			if (pack) {
-				if (pack->id == -1) {
+				if (pack->header.msgType == PacHeader::PUBSUB) {
 					// ÍÆËÍÏûÏ¢
 					auto it = publishMap_.find(pack->typeName);
 					if (it != publishMap_.end()) {
@@ -150,12 +151,12 @@ void AsioClient::onRead()
 					std::pair<PackagePtr, Response> rsp;
 					{
 						std::unique_lock<std::mutex> lock(responseMutex_);
-						auto it = responseMap_.find(pack->id);
+						auto it = responseMap_.find(pack->header.msgId);
 						if (it != responseMap_.end()) {
 							rsp = it->second;
 							responseMap_.erase(it);
 						} else {
-							LOG(ERROR) << "onRead id not find:" << pack->id;
+							LOG(ERROR) << "onRead id not find:" << pack->header.msgId;
 						}
 					}
 					if (rsp.first && rsp.second) {
