@@ -65,6 +65,9 @@ void Connector::onRecvDataClear()
 void Connector::onHello()
 {
 	sendMsg();
+    //sendMsg();
+    //sendMsg();
+    //sendMsg();
 }
 
 void Connector::sendMsg()
@@ -78,9 +81,8 @@ void Connector::sendMsg()
     conn_.postMessage(msgPtr, [content](int error, const PackagePtr &reqMsgPtr, const PackagePtr &rspMsgPtr) {
         if (rspMsgPtr) {
             PbBase::EchoRsp *msg = static_cast<PbBase::EchoRsp*>(rspMsgPtr->msgPtr.get());
-            std::string resContent = msg->content();
-            QByteArray xx = QString::fromStdString(resContent).toLocal8Bit();
-            if (resContent == content) {
+            QByteArray xx = QString::fromStdString(msg->content()).toLocal8Bit();
+            if (msg->content() == content) {
                 std::string id = content.substr(0, content.find(':'));
                 LOG(INFO) << id << ",ok";
             } else {
@@ -89,14 +91,15 @@ void Connector::sendMsg()
         }
     });
 
-	//MessagePtr rsp;
-	//if (0 == conn_.sendMessage(msgPtr, rsp)) {
- //       PbBase::EchoRsp *msg = static_cast<PbBase::EchoRsp*>(rsp.get());
- //       std::string resContent = msg->content();
- //       QByteArray xx = QString::fromStdString(resContent).toLocal8Bit();
- //       if (resContent == content) {
- //           std::string id = content.substr(0, content.find(':'));
- //           ui.lwRecvData->addItem(QString::fromStdString(id));
- //       }
-	//}
+    //MessagePtr rsp;
+    //if (0 == conn_.sendMessage(msgPtr, rsp)) {
+    //    PbBase::EchoRsp *msg = static_cast<PbBase::EchoRsp*>(rsp.get());
+    //    std::string resContent = msg->content();
+    //    QByteArray xx = QString::fromStdString(resContent).toLocal8Bit();
+    //    if (resContent == content) {
+    //        std::string id = content.substr(0, content.find(':'));
+    //        //ui.lwRecvData->addItem(QString::fromStdString(id));
+    //        LOG(INFO) << id << ",ok";
+    //    }
+    //}
 }

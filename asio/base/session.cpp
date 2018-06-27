@@ -112,11 +112,11 @@ std::string Session::remoteEndpoint() const
 void Session::onRead()
 {
 	auto self(shared_from_this());
-	d->socket_.async_read_some(boost::asio::buffer(&d->tempBuf_[0], kTempBufSize),
-		[this, self](boost::system::error_code ec, std::size_t length)
+	d->socket_.async_read_some(boost::asio::buffer(d->tempBuf_, kTempBufSize),
+        [this, self](boost::system::error_code ec, std::size_t length)
 	{
 		if (!ec) {
-			d->readBuffer_.append(&d->tempBuf_[0], length);
+            d->readBuffer_.append(d->tempBuf_, length);
 			do {
 				PackagePtr pack = ProtoHelp::decode(d->readBuffer_);
 				if (pack) {
@@ -124,7 +124,7 @@ void Session::onRead()
 				} else {
 					break;
 				}
-			} while (1);
+			} while (d->readBuffer_.readableBytes() > 0);
 
 			onRead();
 		} else {

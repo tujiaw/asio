@@ -5,7 +5,7 @@
 #include "asio/proto/pb_base.pb.h"
 
 AsioClient::AsioClient(const std::string &address, int heartbeatSeconds)
-    : address_(address), socket_(io_), id_(0), heartbeatSeconds_(heartbeatSeconds), isOnline_(false), writeBuffer_(new Buffer())
+    : address_(address), socket_(io_), id_(0), heartbeatSeconds_(heartbeatSeconds), isOnline_(false)
 {
 }
 
@@ -34,6 +34,9 @@ void AsioClient::start()
 	if (!runthread_.joinable()) {
 		runthread_ = std::move(std::thread([this](){ io_.run(); }));
 	}
+    if (!threadDoResponse_.joinable()) {
+        threadDoResponse_ = std::move(std::thread([this]() { ioDoResponse_.run(); }));
+    }
 }
 
 void AsioClient::addHandlePublish(const std::string &typeName, const PublishFunc &func)
@@ -44,10 +47,14 @@ void AsioClient::addHandlePublish(const std::string &typeName, const PublishFunc
 void AsioClient::stop()
 {
     io_.stop();
+    ioDoResponse_.stop();
     close();
 	if (runthread_.joinable()) {
 		runthread_.join();
 	}
+    if (threadDoResponse_.joinable()) {
+        threadDoResponse_.join();
+    }
 }
 
 bool AsioClient::stopped() const
@@ -115,6 +122,9 @@ int AsioClient::postMessage(const MessagePtr &msgPtr, const Response &res)
 			onWrite();
 		}
 	});
+    ioDoResponse_.post([]() {
+        int i = 0;
+    });
 	return eSuccess;
 }
 
@@ -134,39 +144,14 @@ void AsioClient::onRead()
         }
         
 		readBuffer_.append(tempBuf_, length);
-
 		do {
 			PackagePtr pack = ProtoHelp::decode(readBuffer_);
 			if (pack) {
-				if (pack->header.msgType == PacHeader::PUBSUB) {
-					// 推送消息
-					auto it = publishMap_.find(pack->typeName);
-					if (it != publishMap_.end()) {
-						it->second(0, pack->msgPtr);
-					} else {
-						LOG(WARNING) << "onRead publish not found:" << pack->typeName;
-					}
-				} else {
-					// 应答消息
-					std::pair<PackagePtr, Response> rsp;
-					{
-						std::unique_lock<std::mutex> lock(responseMutex_);
-						auto it = responseMap_.find(pack->header.msgId);
-						if (it != responseMap_.end()) {
-							rsp = it->second;
-							responseMap_.erase(it);
-						} else {
-							LOG(ERROR) << "onRead id not find:" << pack->header.msgId;
-						}
-					}
-					if (rsp.first && rsp.second) {
-						rsp.second(0, rsp.first, pack);
-					}
-				}
+                ioDoResponse_.post([this, pack]() { this->doResponse(pack); });
 			} else {
 				break;
 			}
-		} while (1);
+		} while (readBuffer_.readableBytes() > 0);
 
 		onRead();
 	});
@@ -180,12 +165,13 @@ void AsioClient::onWrite()
 
 	PackagePtr pacPtr = pendingList_.front();
 	pendingList_.pop_front();
-    if (ProtoHelp::encode(pacPtr, writeBuffer_)) {
-        boost::asio::async_write(socket_, boost::asio::buffer(writeBuffer_->peek(), writeBuffer_->readableBytes()),
-            [this](std::error_code ec, std::size_t length) {
+    BufferPtr writeBuffer(new Buffer());
+    if (ProtoHelp::encode(pacPtr, writeBuffer)) {
+        LOG(INFO) << "111";
+        boost::asio::async_write(socket_, boost::asio::buffer(writeBuffer->peek(), writeBuffer->readableBytes()),
+            [this, writeBuffer](std::error_code ec, std::size_t length) {
             if (!ec) {
-                LOG(INFO) << "onWrite:" << length;
-                writeBuffer_->retrieve(length);
+                LOG(INFO) << "222";
                 onWrite();
             } else {
                 LOG(ERROR) << "async write error: " << ec.message();
@@ -256,4 +242,33 @@ void AsioClient::doHeartbeat(const boost::system::error_code &e)
 			heartbeatTimer_->async_wait(std::bind(&AsioClient::doHeartbeat, this, std::placeholders::_1));
 		}
 	});
+}
+
+void AsioClient::doResponse(const PackagePtr &pack)
+{
+    if (pack->header.msgType == PacHeader::PUBSUB) {
+        // 推送消息
+        auto it = publishMap_.find(pack->typeName);
+        if (it != publishMap_.end()) {
+            it->second(0, pack->msgPtr);
+        } else {
+            LOG(WARNING) << "onRead publish not found:" << pack->typeName;
+        }
+    } else {
+        // 应答消息
+        std::pair<PackagePtr, Response> rsp;
+        {
+            std::unique_lock<std::mutex> lock(responseMutex_);
+            auto it = responseMap_.find(pack->header.msgId);
+            if (it != responseMap_.end()) {
+                rsp = it->second;
+                responseMap_.erase(it);
+            } else {
+                LOG(ERROR) << "onRead id not find:" << pack->header.msgId;
+            }
+        }
+        if (rsp.first && rsp.second) {
+            rsp.second(0, rsp.first, pack);
+        }
+    }
 }

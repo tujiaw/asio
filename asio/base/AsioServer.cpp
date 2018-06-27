@@ -21,16 +21,19 @@ AsioServer::~AsioServer()
 
 void AsioServer::run()
 {
-	runthread_ = std::move(std::thread([this]() {
-		io_.run();
-	}));
+    io_.run();
+	//runthread_ = std::move(std::thread([this]() {
+	//	io_.run();
+	//}));
 }
 
 void AsioServer::stop()
 {
 	if (!io_.stopped()) {
 		io_.stop();
-		runthread_.join();
+        if (runthread_.joinable()) {
+            runthread_.join();
+        }
 	}
 }
 

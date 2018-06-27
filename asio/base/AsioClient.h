@@ -33,14 +33,17 @@ private:
 	void doSubscribe();
 	void onHeartbeat();
 	void doHeartbeat(const boost::system::error_code &e);
+    void doResponse(const PackagePtr &pack);
 
 private:
 	std::string address_;
 	boost::asio::io_service io_;
+    boost::asio::io_service ioDoResponse_;
 	tcp::socket socket_;
 	std::deque<PackagePtr> pendingList_;
 	std::atomic<int> id_;
 	std::thread runthread_;
+    std::thread threadDoResponse_;
 	std::unique_ptr<boost::asio::deadline_timer> heartbeatTimer_;
 	int heartbeatSeconds_;
 	std::atomic<bool> isOnline_;
@@ -48,7 +51,6 @@ private:
     static const int kTempBufSize = boost::asio::detail::default_max_transfer_size;
     char tempBuf_[kTempBufSize];
 	Buffer readBuffer_;
-    BufferPtr writeBuffer_;
 
 	std::mutex mutex_;
 	std::condition_variable cond_;

@@ -4,6 +4,8 @@
 #include "boost/date_time.hpp"
 
 static const boost::posix_time::ptime EPOCH(boost::gregorian::date(1970, boost::gregorian::Jan, 1));
+static int s_enableCompressSize = 1024;
+
 void failureWriter(const char *data, int size) {
     LOG(ERROR) << std::string(data, size);
 }
@@ -19,6 +21,14 @@ void initlog(std::string path, bool console) {
     _mkdir(dir.c_str());
     google::SetLogDestination(google::GLOG_INFO, (dir + fileNamePrefix).c_str());
     FLAGS_alsologtostderr = console;
+}
+
+void initEnableCompressSize(int size) {
+    s_enableCompressSize = size;
+}
+
+int enableCompressSize() {
+    return s_enableCompressSize;
 }
 
 time_t currentMillisecond() {

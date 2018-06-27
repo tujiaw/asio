@@ -2,15 +2,15 @@
 #include <boost/asio.hpp>
 #include <zlib.h>
 #include "Buffer.h"
+#include "util.h"
 
 using namespace boost::asio::detail;
 
 static const Package emptyPackage;
 static const int kFlagLen = sizeof(emptyPackage.header.flag);
-static const int kMaxPackageLen = 1024 * 1024 * 1024;
-static const int kMinZipLen = 1024;
+static const int kMaxPackageLen = 1024 * 1024 * 100;
 
-int ProtoHelp::net2int(const char *buf)
+int ProtoHelp::net2int(const char *buf) 
 {
 	int result = 0;
 	memcpy(&result, buf, sizeof result);
@@ -32,7 +32,7 @@ bool ProtoHelp::encode(const PackagePtr &package, BufferPtr &buffer)
     std::string content;
     content.resize(package->msgPtr->ByteSize());
     if (package->msgPtr->SerializePartialToArray(&content[0], content.size())) {
-        if (content.size() > kMinZipLen) {
+        if (util::enableCompressSize() >= 0 && content.size() > util::enableCompressSize()) {
             unsigned long bufferSize = compressBound(content.size());
             std::string buffer(bufferSize, 0);
             int errcode = compress((unsigned char*)&buffer[0], &bufferSize, (unsigned char*)&content[0], content.size());
@@ -58,31 +58,38 @@ bool ProtoHelp::encode(const PackagePtr &package, BufferPtr &buffer)
 
 PackagePtr ProtoHelp::decode(Buffer &buf)
 {
-	bool isOk = false;
-	char flags[kFlagLen];
-	while (buf.readableBytes() > kPackageHeaderSize) {
-		memcpy(flags, buf.peek(), kFlagLen);
-		if (flags[0] == 'P' || flags[1] == 'P') {
-			isOk = true;
-			break;
-		} else {
-			std::cout << "buffer flag error:" << flags[0] << "," << flags[1] << std::endl;
-			buf.retrieve(1);
-		}
-	}
-	if (!isOk) {
-		return nullptr;
-	}
+    auto gotoFlag = [](Buffer &buf) -> bool {
+        while (buf.readableBytes() > kPackageHeaderSize) {
+            const char *p = buf.peek();
+            if (p[0] == 'P' && p[1] == 'P') {
+                return true;
+            } else {
+                LOG(INFO) << "flag error";
+                buf.retrieve(1);
+            }
+        }
+        return false;
+    };
+
+    if (!gotoFlag(buf)) {
+        LOG(ERROR) << "go to flag error";
+        return nullptr;
+    }
 
     PacHeader header;
     memcpy(&header, buf.peek(), kPackageHeaderSize);
-	if (buf.readableBytes() < (std::size_t)header.pacSize) {
-		return nullptr;
-	}
+
+    if (header.pacSize < 0 || header.pacSize > kMaxPackageLen) {
+        return decode(buf);
+    }
+
+    if (buf.readableBytes() < (std::size_t)header.pacSize) {
+        return nullptr;
+    }
 
     if (header.typeNameLen <= 0 || header.typeNameLen > 1024) {
-        std::cout << "type name len error:" << header.typeNameLen << std::endl;
-        return nullptr;
+        LOG(INFO) << "type name len error:" << header.typeNameLen;
+        return decode(buf);
     }
 
     buf.retrieve(kPackageHeaderSize);
@@ -90,7 +97,7 @@ PackagePtr ProtoHelp::decode(Buffer &buf)
     google::protobuf::Message *msg = createMessage(typeName);;
     if (!msg) {
         LOG(ERROR) << "create message failed:" << typeName;
-        return nullptr;
+        return decode(buf);
     }
 
     bool parseResult = false;
@@ -115,6 +122,8 @@ PackagePtr ProtoHelp::decode(Buffer &buf)
         result->msgPtr = MessagePtr(msg);
         return result;
     }
+
+    LOG(ERROR) << "decode failed:" << typeName;
     return nullptr;
 }
 
