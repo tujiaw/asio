@@ -4,8 +4,13 @@
 #include "util.h"
 #include "asio/proto/pb_base.pb.h"
 
-AsioClient::AsioClient(const std::string &address, int heartbeatSeconds)
-    : address_(address), socket_(io_), id_(0), heartbeatSeconds_(heartbeatSeconds), isOnline_(false)
+AsioClient::AsioClient(const std::string &address, int heartbeatSeconds) 
+    : address_(address), 
+    socket_(io_), 
+    id_(0), 
+    heartbeatSeconds_(heartbeatSeconds), 
+    isOnline_(false), 
+    workDoResponse_(ioDoResponse_)
 {
 }
 

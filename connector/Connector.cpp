@@ -65,9 +65,6 @@ void Connector::onRecvDataClear()
 void Connector::onHello()
 {
 	sendMsg();
-    //sendMsg();
-    //sendMsg();
-    //sendMsg();
 }
 
 void Connector::sendMsg()
@@ -81,7 +78,6 @@ void Connector::sendMsg()
     conn_.postMessage(msgPtr, [content](int error, const PackagePtr &reqMsgPtr, const PackagePtr &rspMsgPtr) {
         if (rspMsgPtr) {
             PbBase::EchoRsp *msg = static_cast<PbBase::EchoRsp*>(rspMsgPtr->msgPtr.get());
-            QByteArray xx = QString::fromStdString(msg->content()).toLocal8Bit();
             if (msg->content() == content) {
                 std::string id = content.substr(0, content.find(':'));
                 LOG(INFO) << id << ",ok";
