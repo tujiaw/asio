@@ -26,3 +26,9 @@ libprotobufd.lib
 glogd.lib
 zlibstatic.lib
 ```
+
+记事本打开相应的vsxproj文件，在Microsoft.Cpp.props下面增加本地asio.props文件，如：
+```
+<Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+<Import Project="$(SolutionDir)asio.props"/>
+```

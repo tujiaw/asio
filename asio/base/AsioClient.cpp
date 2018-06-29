@@ -127,9 +127,6 @@ int AsioClient::postMessage(const MessagePtr &msgPtr, const Response &res)
 			onWrite();
 		}
 	});
-    ioDoResponse_.post([]() {
-        int i = 0;
-    });
 	return eSuccess;
 }
 

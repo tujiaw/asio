@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?> 
+<Project DefaultTargets="Build" ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ImportGroup Label="PropertySheets">
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros">
+	<BOOSTDIR>$(SolutionDir)asio\third\boost\</BOOSTDIR>
+	<PROTOBUFDIR>$(SolutionDir)asio\third\protobuf\</PROTOBUFDIR>
+	<GLOGDIR>$(SolutionDir)asio\third\glog\</GLOGDIR>
+	<ZLIBDIR>$(SolutionDir)asio\third\zlib\</ZLIBDIR>
+  </PropertyGroup>
+  <PropertyGroup>
+    <IncludePath>$(WindowsSDK_IncludePath);$(VC_IncludePath);$(SolutionDir);$(BOOSTDIR)include;$(PROTOBUFDIR)include;$(GLOGDIR)include;$(ZLIBDIR)include</IncludePath>
+    <LibraryPath>$(WindowsSDK_LibraryPath_x86);$(VC_LibraryPath_x86);$(BOOSTDIR)lib;$(PROTOBUFDIR)lib;$(GLOGDIR)lib;$(ZLIBDIR)lib</LibraryPath>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+	<Link>
+	  <AdditionalDependencies>libboost_system-vc120-mt-gd-1_65_1.lib;libprotobufd.lib;glogd.lib;zlibstatic.lib</AdditionalDependencies>
+	</Link>
+  </ItemDefinitionGroup>
+   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+   	<Link>
+	  <AdditionalDependencies>libboost_system-vc120-mt-gd-1_65_1.lib;libprotobufd.lib;glogd.lib;zlibstatic.lib</AdditionalDependencies>
+	</Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+	<BuildMacro Include="BOOSTDIR">
+      <Value>$(BOOSTDIR)</Value>
+    </BuildMacro>
+	<BuildMacro Include="PROTOBUFDIR">
+      <Value>$(PROTOBUFDIR)</Value>
+    </BuildMacro>
+	<BuildMacro Include="GLOGDIR">
+      <Value>$(GLOGDIR)</Value>
+    </BuildMacro>
+	<BuildMacro Include="ZLIBDIR">
+      <Value>$(ZLIBDIR)</Value>
+    </BuildMacro>
+  </ItemGroup>
+</Project>
