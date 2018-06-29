@@ -23,17 +23,5 @@
 	</Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-	<BuildMacro Include="BOOSTDIR">
-      <Value>$(BOOSTDIR)</Value>
-    </BuildMacro>
-	<BuildMacro Include="PROTOBUFDIR">
-      <Value>$(PROTOBUFDIR)</Value>
-    </BuildMacro>
-	<BuildMacro Include="GLOGDIR">
-      <Value>$(GLOGDIR)</Value>
-    </BuildMacro>
-	<BuildMacro Include="ZLIBDIR">
-      <Value>$(ZLIBDIR)</Value>
-    </BuildMacro>
   </ItemGroup>
 </Project>

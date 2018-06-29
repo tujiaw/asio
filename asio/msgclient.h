@@ -14,8 +14,8 @@ public:
     void start();
     void stop();
 
-    int sendMessage(const MessagePtr &msgPtr, MessagePtr &rspPtr, int msTimeout = 3000);
-    int postMessage(const MessagePtr &msgPtr, const Response &res);
+    int sendMessage(const MessagePtr &msgPtr, MessagePtr &rspPtr, int msTimeout = kMsTimeout);
+    int postMessage(const MessagePtr &msgPtr, const Response &res, int msTimeout = kMsTimeout);
 
 private:
     const std::string address_;

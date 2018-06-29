@@ -76,7 +76,9 @@ void Connector::sendMsg()
     req->set_content(content);
 
     conn_.postMessage(msgPtr, [content](int error, const PackagePtr &reqMsgPtr, const PackagePtr &rspMsgPtr) {
-        if (rspMsgPtr) {
+        if (error) {
+            LOG(ERROR) << "on post error:" << error;
+        } else {
             PbBase::EchoRsp *msg = static_cast<PbBase::EchoRsp*>(rspMsgPtr->msgPtr.get());
             if (msg->content() == content) {
                 std::string id = content.substr(0, content.find(':'));

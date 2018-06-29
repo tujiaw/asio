@@ -12,6 +12,21 @@
 using boost::asio::ip::tcp;
 class AsioClient {
 public:
+    class MsgCache {
+    public:
+        MsgCache(AsioClient *client, const PackagePtr &p, const Response &r, int msTimeout)
+            : pac(p), res(r), timer(client->io_, boost::posix_time::milliseconds(msTimeout)) { 
+            timer.async_wait(std::bind(&AsioClient::onTimeout, client, std::placeholders::_1, p->header.msgId));
+        }
+        ~MsgCache() {
+            timer.cancel_one();
+        }
+        PackagePtr pac;
+        Response res;
+        boost::asio::deadline_timer timer;
+    };
+    typedef std::shared_ptr<MsgCache> MsgCachePtr;
+
 	explicit AsioClient(const std::string &address, int heartbeatSeconds = 0);
 	~AsioClient();
 	AsioClient(const AsioClient&) = delete;
@@ -22,13 +37,14 @@ public:
 	void stop();
 	bool stopped() const;
 
-	int sendMessage(const MessagePtr &msgPtr, MessagePtr &rspPtr, int msTimeout);
-	int postMessage(const MessagePtr &msgPtr, const Response &res);
+    int sendMessage(const MessagePtr &msgPtr, MessagePtr &rspPtr, int msTimeout = kMsTimeout);
+    int postMessage(const MessagePtr &msgPtr, const Response &res, int msTimeout = kMsTimeout);
 
 private:
 	void close();
 	void onRead();
 	void onWrite();
+    void onTimeout(boost::system::error_code err, int msgId);
 	void doClose();
 	void doSubscribe();
 	void onHeartbeat();
@@ -57,7 +73,7 @@ private:
 	std::condition_variable cond_;
 
 	std::mutex responseMutex_;
-	std::map<int, std::pair<PackagePtr, Response>> responseMap_;
+    std::map<int, MsgCachePtr> responseMap_;
 	std::map<std::string, PublishFunc> publishMap_;
 };
 

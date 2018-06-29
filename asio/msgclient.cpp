@@ -34,10 +34,10 @@ int MsgClient::sendMessage(const MessagePtr &msgPtr, MessagePtr &rspPtr, int msT
     return d_func()->sendMessage(msgPtr, rspPtr, msTimeout);
 }
 
-int MsgClient::postMessage(const MessagePtr &msgPtr, const Response &res) {
+int MsgClient::postMessage(const MessagePtr &msgPtr, const Response &res, int msTimeout) {
     if (d_func()->stopped()) {
         LOG(WARNING) << "service stopped";
         return eDisconnect;
     }
-    return d_func()->postMessage(msgPtr, res);
+    return d_func()->postMessage(msgPtr, res, msTimeout);
 }

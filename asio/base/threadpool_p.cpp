@@ -75,12 +75,8 @@ void ThreadPoolPrivate::enqueueTask(Runnable* runnable, int priority)
 
 std::size_t ThreadPoolPrivate::activeThreadCount(void) const
 {
-	return
-		  this->allThreads.size()
-		- this->waitingThreads.size()
-		- this->expiredThreads.size()
-		+ this->reservedThreads
-	;
+	return this->allThreads.size() - this->waitingThreads.size() - 
+        this->expiredThreads.size() + this->reservedThreads;
 }
 
 void ThreadPoolPrivate::tryToStartMoreThreads(void)

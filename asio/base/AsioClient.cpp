@@ -76,30 +76,27 @@ int AsioClient::sendMessage(const MessagePtr &msgPtr, MessagePtr &rspPtr, int ms
 {
 	bool isWait = true;
 	int err = postMessage(msgPtr, [&](int error, const PackagePtr &reqMsgPtr, const PackagePtr &rspMsgPtr) {
+        if (!error) {
+            rspPtr = rspMsgPtr->msgPtr;
+        }
 		err = error;
-		if (error == 0) {
-			rspPtr = rspMsgPtr->msgPtr;
-		} 
 		std::unique_lock<std::mutex> lock(mutex_);
 		isWait = false;
 		this->cond_.notify_all();
-	});
+	}, msTimeout);
+
 	if (err != eSuccess) {
 		return (int)err;
 	}
 
 	std::unique_lock<std::mutex> lock(mutex_);
 	while (isWait) {
-		std::_Cv_status status = cond_.wait_for(lock, std::chrono::milliseconds(msTimeout));
-		if (status == std::_Cv_status::timeout) {
-			err = eTimeout;
-			break;
-		}
+        cond_.wait(lock);
 	}
 	return err;
 }
 
-int AsioClient::postMessage(const MessagePtr &msgPtr, const Response &res)
+int AsioClient::postMessage(const MessagePtr &msgPtr, const Response &res, int msTimeout)
 {
 	if (io_.stopped()) {
 		return eServiceStopped;
@@ -117,7 +114,7 @@ int AsioClient::postMessage(const MessagePtr &msgPtr, const Response &res)
 
 	{
 		std::unique_lock<std::mutex> lock(responseMutex_);
-		responseMap_[pacPtr->header.msgId] = std::make_pair(pacPtr, res);
+        responseMap_[pacPtr->header.msgId] = MsgCachePtr(new MsgCache(this, pacPtr, res, msTimeout));
 	}
 
 	io_.post([this, pacPtr] {
@@ -133,17 +130,12 @@ int AsioClient::postMessage(const MessagePtr &msgPtr, const Response &res)
 void AsioClient::onRead()
 {
 	socket_.async_read_some(boost::asio::buffer(tempBuf_, kTempBufSize),
-		[this](boost::system::error_code ec, std::size_t length)
-	{
+		[this](boost::system::error_code ec, std::size_t length) {
 		if (ec) {
 			LOG(ERROR) << "onRead error:" << ec.message();
 			close();
 			return;
 		}
-		
-        if (length != 40) {
-            LOG(INFO) << "onRead:" << length;
-        }
         
 		readBuffer_.append(tempBuf_, length);
 		do {
@@ -169,17 +161,37 @@ void AsioClient::onWrite()
 	pendingList_.pop_front();
     BufferPtr writeBuffer(new Buffer());
     if (ProtoHelp::encode(pacPtr, writeBuffer)) {
-        LOG(INFO) << "111";
         boost::asio::async_write(socket_, boost::asio::buffer(writeBuffer->peek(), writeBuffer->readableBytes()),
             [this, writeBuffer](std::error_code ec, std::size_t length) {
             if (!ec) {
-                LOG(INFO) << "222";
                 onWrite();
             } else {
                 LOG(ERROR) << "async write error: " << ec.message();
                 this->close();
             }
         });
+    }
+}
+
+void AsioClient::onTimeout(boost::system::error_code err, int msgId)
+{
+    if (err == boost::asio::error::operation_aborted) {
+        return;
+    }
+
+    MsgCachePtr rsp;
+    {
+        std::unique_lock<std::mutex> lock(responseMutex_);
+        auto it = responseMap_.find(msgId);
+        if (it != responseMap_.end()) {
+            rsp = it->second;
+            responseMap_.erase(it);
+        } else {
+            LOG(ERROR) << "onTimeout id not find:" << msgId;
+        }
+    }
+    if (rsp) {
+        rsp->res(eTimeout, rsp->pac, nullptr);
     }
 }
 
@@ -258,7 +270,7 @@ void AsioClient::doResponse(const PackagePtr &pack)
         }
     } else {
         // Ó¦´ðÏûÏ¢
-        std::pair<PackagePtr, Response> rsp;
+        MsgCachePtr rsp;
         {
             std::unique_lock<std::mutex> lock(responseMutex_);
             auto it = responseMap_.find(pack->header.msgId);
@@ -269,8 +281,8 @@ void AsioClient::doResponse(const PackagePtr &pack)
                 LOG(ERROR) << "onRead id not find:" << pack->header.msgId;
             }
         }
-        if (rsp.first && rsp.second) {
-            rsp.second(0, rsp.first, pack);
+        if (rsp) {
+            rsp->res(0, rsp->pac, pack);
         }
     }
 }

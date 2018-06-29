@@ -50,6 +50,7 @@ struct PacHeader {
 #pragma pack(pop)
 
 const int kPackageHeaderSize = sizeof(PacHeader);
+const int kMsTimeout = 3000;
 
 struct Package {
     PacHeader header;
