@@ -80,7 +80,7 @@ void Session::publishMessage(const MessagePtr &msg)
 
 	PackagePtr pack(new Package());
     pack->header.msgType = PacHeader::PUBSUB;
-    pack->header.msgId = ++d->id_;
+    pack->header.msgId = ++d->id_ % INT_MAX;
 	pack->header.typeNameLen = msg->GetTypeName().length();
 	pack->typeName = msg->GetTypeName();
 	pack->msgPtr = msg;
@@ -116,6 +116,7 @@ void Session::onRead()
         [this, self](boost::system::error_code ec, std::size_t length)
 	{
 		if (!ec) {
+			LOG(INFO) << "onread " << length;
             d->readBuffer_.append(d->tempBuf_, length);
 			do {
 				PackagePtr pack = ProtoHelp::decode(d->readBuffer_);

@@ -30,7 +30,7 @@ int main(int argc, char* argv[])
 		rsp->set_errorcode(0);
 		rsp->set_content(req->content());
         //std::this_thread::sleep_for(std::chrono::seconds(2));
-        LOG(INFO) << "ECHO request:" << req->content().size() << ", last:" << req->content().substr(req->content().length() - 3) << ", id:" << reqPtr->header.msgId;
+        LOG(INFO) << "ECHO request pacSize:" << reqPtr->header.pacSize << ", last:" << req->content().substr(req->content().length() - 3) << ", id:" << reqPtr->header.msgId;
 		sessionPtr->replyMessage(reqPtr, MessagePtr(rsp));
 	});
 

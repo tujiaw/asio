@@ -7,7 +7,7 @@
 
 Connector::Connector(QWidget *parent)
 	: QDialog(parent), id_(100), timer_(new QTimer(this))
-	, conn_("127.0.0.1:5566", 30000)
+	, conn_("127.0.0.1:5566", 5)
 {
 	ui.setupUi(this);
 
@@ -81,8 +81,7 @@ void Connector::sendMsg()
         } else {
             PbBase::EchoRsp *msg = static_cast<PbBase::EchoRsp*>(rspMsgPtr->msgPtr.get());
             if (msg->content() == content) {
-                std::string id = content.substr(0, content.find(':'));
-                LOG(INFO) << id << ",ok";
+                LOG(INFO) << rspMsgPtr->header.msgId << ",ok";
             } else {
                 LOG(ERROR) << "failed";
             }

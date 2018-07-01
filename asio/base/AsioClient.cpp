@@ -107,7 +107,7 @@ int AsioClient::postMessage(const MessagePtr &msgPtr, const Response &res, int m
 
 	PackagePtr pacPtr(new Package);
     pacPtr->header.msgType = PacHeader::REQREP;
-	pacPtr->header.msgId = ++id_;
+	pacPtr->header.msgId = ++id_ % INT_MAX;
     pacPtr->header.typeNameLen = msgPtr->GetTypeName().length();
 	pacPtr->typeName = msgPtr->GetTypeName();
 	pacPtr->msgPtr = msgPtr;
@@ -184,6 +184,7 @@ void AsioClient::onTimeout(boost::system::error_code err, int msgId)
         std::unique_lock<std::mutex> lock(responseMutex_);
         auto it = responseMap_.find(msgId);
         if (it != responseMap_.end()) {
+			LOG(INFO) << "on timeout, msgid:" << msgId;
             rsp = it->second;
             responseMap_.erase(it);
         } else {
@@ -282,7 +283,7 @@ void AsioClient::doResponse(const PackagePtr &pack)
             }
         }
         if (rsp) {
-            rsp->res(0, rsp->pac, pack);
+            rsp->res(eSuccess, rsp->pac, pack);
         }
     }
 }
