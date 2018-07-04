@@ -25,7 +25,7 @@ private:
 	void onAccept();
 
 private:
-	boost::asio::io_service io_;
+	boost::asio::io_context io_;
 	tcp::acceptor acceptor_;
 	tcp::socket socket_;
 	std::thread runthread_;

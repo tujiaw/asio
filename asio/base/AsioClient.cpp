@@ -26,7 +26,7 @@ void AsioClient::start()
 	int pos = address_.find(":");
 	assert(pos > 0);
 	auto endpoints = resolver.resolve({ address_.substr(0, pos), address_.substr(pos + 1) });
-	boost::asio::async_connect(socket_, endpoints, [this](std::error_code ec, tcp::resolver::iterator) {
+    boost::asio::async_connect(socket_, endpoints, [this](boost::system::error_code ec, tcp::endpoint) {
 		LOG(INFO) << "connect " << ec.message();
 		isOnline_ = !ec;
 		if (!ec) {
@@ -241,7 +241,7 @@ void AsioClient::onHeartbeat()
 
 void AsioClient::doHeartbeat(const boost::system::error_code &e)
 {
-	if (0 != e) {
+	if (!e) {
 		return;
 	}
 

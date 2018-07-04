@@ -14,13 +14,19 @@
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
 	<Link>
-	  <AdditionalDependencies>shell32.lib;libboost_system-vc120-mt-gd-1_65_1.lib;libprotobufd.lib;glogd.lib;zlibstatic.lib</AdditionalDependencies>
+	  <AdditionalDependencies>shell32.lib;libboost_system-vc120-mt-gd-x32-1_67.lib;libboost_date_time-vc120-mt-gd-x32-1_67.lib;libboost_regex-vc120-mt-gd-x32-1_67.lib;libprotobufd.lib;glogd.lib;zlibstatic.lib</AdditionalDependencies>
 	</Link>
+	<ClCompile>
+      <PreprocessorDefinitions>PROTOBUF_USE_DLLS</PreprocessorDefinitions>
+    </ClCompile>
   </ItemDefinitionGroup>
    <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
    	<Link>
-	  <AdditionalDependencies>shell32.lib;libboost_system-vc120-mt-gd-1_65_1.lib;libprotobufd.lib;glogd.lib;zlibstatic.lib</AdditionalDependencies>
+	  <AdditionalDependencies>shell32.lib;libboost_system-vc120-mt-x32-1_67.lib;libboost_date_time-vc120-mt-x32-1_67.lib;libboost_regex-vc120-mt-x32-1_67.lib;libprotobuf.lib;glog.lib;zlibstatic.lib</AdditionalDependencies>
 	</Link>
+	<ClCompile>
+      <PreprocessorDefinitions>PROTOBUF_USE_DLLS</PreprocessorDefinitions>
+    </ClCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
   </ItemGroup>

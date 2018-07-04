@@ -26,7 +26,7 @@ struct SessionData {
 	}
 
 	tcp::socket socket_;
-	boost::asio::io_service &io_;
+	boost::asio::io_context &io_;
 	char tempBuf_[kTempBufSize];
 	Buffer readBuffer_;
 	std::mutex subscribeMutex_;

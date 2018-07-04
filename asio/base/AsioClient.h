@@ -53,9 +53,9 @@ private:
 
 private:
 	std::string address_;
-	boost::asio::io_service io_;
-    boost::asio::io_service ioDoResponse_;
-    boost::asio::io_service::work workDoResponse_;
+	boost::asio::io_context io_;
+    boost::asio::io_context ioDoResponse_;
+    boost::asio::io_context::work workDoResponse_;
 	tcp::socket socket_;
 	std::deque<PackagePtr> pendingList_;
 	std::atomic<int> id_;
