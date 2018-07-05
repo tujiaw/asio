@@ -10,21 +10,21 @@ static const Package emptyPackage;
 static const int kFlagLen = sizeof(emptyPackage.header.flag);
 static const int kMaxPackageLen = 1024 * 1024 * 100;
 
-int ProtoHelp::net2int(const char *buf) 
+int ProtoHelp::net2int(const char *buf)
 {
-	int result = 0;
-	memcpy(&result, buf, sizeof result);
-	return socket_ops::network_to_host_long(result);
+    int result = 0;
+    memcpy(&result, buf, sizeof result);
+    return socket_ops::network_to_host_long(result);
 }
 
 int ProtoHelp::net2int(int i)
 {
-	return socket_ops::network_to_host_long(i);
+    return socket_ops::network_to_host_long(i);
 }
 
 int ProtoHelp::int2net(int i)
 {
-	return socket_ops::host_to_network_long(i);
+    return socket_ops::host_to_network_long(i);
 }
 
 bool ProtoHelp::encode(const PackagePtr &package, BufferPtr &buffer)
@@ -79,12 +79,15 @@ PackagePtr ProtoHelp::decode(Buffer &buf)
     PacHeader header;
     memcpy(&header, buf.peek(), kPackageHeaderSize);
 
-    if (header.pacSize < 0 || header.pacSize > kMaxPackageLen) {
-        return decode(buf);
-    }
-
+    // 数据不够等待下次读取更多的数据
     if (buf.readableBytes() < (std::size_t)header.pacSize) {
         return nullptr;
+    }
+
+    buf.retrieve(kPackageHeaderSize);
+    if (header.pacSize < 0 || header.pacSize > kMaxPackageLen) {
+        LOG(INFO) << "pac size error:" << header.pacSize;
+        return decode(buf);
     }
 
     if (header.typeNameLen <= 0 || header.typeNameLen > 1024) {
@@ -92,8 +95,7 @@ PackagePtr ProtoHelp::decode(Buffer &buf)
         return decode(buf);
     }
 
-    buf.retrieve(kPackageHeaderSize);
-	std::string typeName = buf.retrieveAsString(header.typeNameLen);
+    std::string typeName = buf.retrieveAsString(header.typeNameLen);
     google::protobuf::Message *msg = createMessage(typeName);;
     if (!msg) {
         LOG(ERROR) << "create message failed:" << typeName;
@@ -101,10 +103,11 @@ PackagePtr ProtoHelp::decode(Buffer &buf)
     }
 
     bool parseResult = false;
+    int remainSize = header.pacSize - kPackageHeaderSize - header.typeNameLen;
     if (header.iszip) {
         unsigned long bufferSize = header.msgSize;
         std::string buffer(bufferSize, 0);
-        int errcode = uncompress((unsigned char*)&buffer[0], &bufferSize, (unsigned char*)buf.peek(), header.pacSize - kPackageHeaderSize - header.typeNameLen);
+        int errcode = uncompress((unsigned char*)&buffer[0], &bufferSize, (unsigned char*)buf.peek(), remainSize);
         if (errcode == Z_OK) {
             parseResult = msg->ParseFromArray(&buffer[0], bufferSize);
         } else {
@@ -115,7 +118,7 @@ PackagePtr ProtoHelp::decode(Buffer &buf)
     }
 
     if (parseResult) {
-        buf.retrieve(header.msgSize);
+        buf.retrieve(remainSize);
         PackagePtr result(new Package());
         result->header = header;
         result->typeName = typeName;
@@ -129,13 +132,13 @@ PackagePtr ProtoHelp::decode(Buffer &buf)
 
 google::protobuf::Message* ProtoHelp::createMessage(const std::string & typeName)
 {
-	google::protobuf::Message *message = nullptr;
-	const google::protobuf::Descriptor* desc = google::protobuf::DescriptorPool::generated_pool()->FindMessageTypeByName(typeName);
-	if (desc) {
-		const google::protobuf::Message *prototype = google::protobuf::MessageFactory::generated_factory()->GetPrototype(desc);
-		if (prototype) {
-			message = prototype->New();
-		}
-	}
-	return message;
+    google::protobuf::Message *message = nullptr;
+    const google::protobuf::Descriptor* desc = google::protobuf::DescriptorPool::generated_pool()->FindMessageTypeByName(typeName);
+    if (desc) {
+        const google::protobuf::Message *prototype = google::protobuf::MessageFactory::generated_factory()->GetPrototype(desc);
+        if (prototype) {
+            message = prototype->New();
+        }
+    }
+    return message;
 }

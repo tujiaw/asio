@@ -161,6 +161,7 @@ void AsioClient::onWrite()
 	pendingList_.pop_front();
     BufferPtr writeBuffer(new Buffer());
     if (ProtoHelp::encode(pacPtr, writeBuffer)) {
+        LOG(INFO) << "write msgid:" << pacPtr->header.msgId;
         boost::asio::async_write(socket_, boost::asio::buffer(writeBuffer->peek(), writeBuffer->readableBytes()),
             [this, writeBuffer](std::error_code ec, std::size_t length) {
             if (!ec) {

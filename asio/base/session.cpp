@@ -116,11 +116,11 @@ void Session::onRead()
         [this, self](boost::system::error_code ec, std::size_t length)
 	{
 		if (!ec) {
-			LOG(INFO) << "onread " << length;
             d->readBuffer_.append(d->tempBuf_, length);
 			do {
 				PackagePtr pack = ProtoHelp::decode(d->readBuffer_);
 				if (pack) {
+                    LOG(INFO) << "session onread:" << pack->header.msgId;
 					TaskManager::instance()->handleMessage(pack, self);
 				} else {
 					break;
@@ -146,10 +146,6 @@ void Session::onWrite(BufferPtr writeBuffer)
 		[this, self, writeBuffer](boost::system::error_code ec, std::size_t length)
 	{
 		if (!ec) {
-            if (length != 40) {
-                LOG(INFO) << "onWrite size:" << length;
-            }
-            
 			writeBuffer->retrieve(length);
 			onWrite(writeBuffer);
 		}
