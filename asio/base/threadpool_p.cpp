@@ -8,7 +8,7 @@
 
 ThreadPoolPrivate::ThreadPoolPrivate(void)
 	: isExiting(false), expiryTimeout(30000),
-	  maxThreadCount(std::max(std::thread::hardware_concurrency() * 2 + 2, 1u)),
+	  maxThreadCount(std::max(std::thread::hardware_concurrency() * 2, 1u)),
 	  reservedThreads(0), activeThreads(0)
 {
 }

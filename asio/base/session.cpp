@@ -22,6 +22,7 @@ struct SessionData {
 		: socket_(std::move(*(tcp::socket*)socket))
 		, io_(socket_.get_io_service())
         , id_(0)
+        , remoteEndpoint_(endpoint2str(socket_.remote_endpoint()))
 	{
 	}
 
@@ -32,19 +33,20 @@ struct SessionData {
 	std::mutex subscribeMutex_;
 	std::vector<std::string> subscribeList_;
     std::atomic<int> id_;
+    std::string remoteEndpoint_;
 };
 
 Session::Session(void* socket)
 	: d(new SessionData(socket))
 {
-	std::cout << "Session create:" << this << std::endl;
+    std::cout << "Session create:" << remoteEndpoint() << std::endl;
 	SessionManager::instance()->addSession(this);
 }
 
 Session::~Session()
 {
 	SessionManager::instance()->removeSession(this);
-	std::cout << "Session delete:" << this << std::endl;
+	std::cout << "Session delete:" << remoteEndpoint() << std::endl;
 	delete d;
 }
 
@@ -106,15 +108,14 @@ void Session::removeSubscribe(const std::string &typeName)
 
 std::string Session::remoteEndpoint() const
 {
-	return endpoint2str(d->socket_.remote_endpoint());
+    return d->remoteEndpoint_;
 }
 
 void Session::onRead()
 {
 	auto self(shared_from_this());
 	d->socket_.async_read_some(boost::asio::buffer(d->tempBuf_, kTempBufSize),
-        [this, self](boost::system::error_code ec, std::size_t length)
-	{
+        [this, self](boost::system::error_code ec, std::size_t length) {
 		if (!ec) {
             d->readBuffer_.append(d->tempBuf_, length);
 			do {

@@ -1,8 +1,10 @@
 #pragma once
 
 #include "desc.h"
+#include <thread>
 
 class ThreadPool;
+
 class TaskManager
 {
 public:
@@ -19,7 +21,6 @@ private:
 
 private:
 	static TaskManager *s_inst;
-	std::unique_ptr<ThreadPool> pool_;
-	std::map<std::string, Task> handler_;
+    D_PRIVATE(TaskManagerPrivate)
 };
 

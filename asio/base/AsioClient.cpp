@@ -98,33 +98,39 @@ int AsioClient::sendMessage(const MessagePtr &msgPtr, MessagePtr &rspPtr, int ms
 
 int AsioClient::postMessage(const MessagePtr &msgPtr, const Response &res, int msTimeout)
 {
-	if (io_.stopped()) {
-		return eServiceStopped;
-	}
-	if (!isOnline_) {
-		return eDisconnect;
-	}
+    return postMessage(false, msgPtr, res, msTimeout);
+}
 
-	PackagePtr pacPtr(new Package);
+int AsioClient::postMessage(bool isOrder, const MessagePtr &msgPtr, const Response &res, int msTimeout)
+{
+    if (io_.stopped()) {
+        return eServiceStopped;
+    }
+    if (!isOnline_) {
+        return eDisconnect;
+    }
+
+    PackagePtr pacPtr(new Package);
     pacPtr->header.msgType = PacHeader::REQREP;
-	pacPtr->header.msgId = ++id_ % INT_MAX;
+    pacPtr->header.msgId = ++id_ % INT_MAX;
     pacPtr->header.typeNameLen = msgPtr->GetTypeName().length();
-	pacPtr->typeName = msgPtr->GetTypeName();
-	pacPtr->msgPtr = msgPtr;
+    pacPtr->header.isorder = isOrder ? 1 : 0;
+    pacPtr->typeName = msgPtr->GetTypeName();
+    pacPtr->msgPtr = msgPtr;
 
-	{
-		std::unique_lock<std::mutex> lock(responseMutex_);
+    {
+        std::unique_lock<std::mutex> lock(responseMutex_);
         responseMap_[pacPtr->header.msgId] = MsgCachePtr(new MsgCache(this, pacPtr, res, msTimeout));
-	}
+    }
 
-	io_.post([this, pacPtr] {
-		bool isProgress = !pendingList_.empty();
-		pendingList_.push_back(pacPtr);
-		if (!isProgress) {
-			onWrite();
-		}
-	});
-	return eSuccess;
+    io_.post([this, pacPtr] {
+        bool isProgress = !pendingList_.empty();
+        pendingList_.push_back(pacPtr);
+        if (!isProgress) {
+            onWrite();
+        }
+    });
+    return eSuccess;
 }
 
 void AsioClient::onRead()

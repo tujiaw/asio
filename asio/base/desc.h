@@ -41,6 +41,7 @@ struct PacHeader {
         short extInfo;
         struct {
             unsigned char iszip : 1;
+            unsigned char isorder : 1;
         };
     };
     int msgId;
