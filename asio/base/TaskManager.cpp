@@ -3,6 +3,7 @@
 #include <boost/asio/io_context.hpp>
 #include "runnable.h"
 #include "threadpool.h"
+#include "session.h"
 
 class TaskRunnable : public Runnable
 {
@@ -26,32 +27,37 @@ private:
 
 typedef std::pair<boost::asio::io_context*, boost::asio::io_context::work*> WorkContext;
 
+class Worker {
+public:
+	Worker() : work(io) {
+		thread = std::move(std::thread([this]() {
+			io.run();
+		}));
+	}
+	~Worker() {
+		io.stop();
+	}
+
+	std::thread thread;
+	boost::asio::io_context io;
+	boost::asio::io_context::work work;
+};
+typedef std::shared_ptr<Worker> WorkerPtr;
+
 class TaskManagerPrivate {
 public:
-    TaskManagerPrivate() 
-        : workThreadCount_(std::max(std::thread::hardware_concurrency() * 2, 1u)),
-        pool_(new ThreadPool())
-    {
+    TaskManagerPrivate() : 
+		pool_(new ThreadPool()),
+		workThreadCount_(std::max(std::thread::hardware_concurrency() * 2, 1u)) {
         for (int i = 0; i < workThreadCount_; i++) {
-            WorkContext w;
-            w.first = new boost::asio::io_context();
-            w.second = new boost::asio::io_context::work(*w.first);
-            works_.push_back(w);
+			workers_.push_back(std::make_shared<Worker>());
         }
     }
 
-    ~TaskManagerPrivate()
-    {
-        for (int i = 0; i < workThreadCount_; i++) {
-            delete works_[i].second;
-            delete works_[i].first;
-        }
-    }
-
+	std::unique_ptr<ThreadPool> pool_;
+	std::map<std::string, Task> handler_;
     int workThreadCount_;
-    std::unique_ptr<ThreadPool> pool_;
-    std::map<std::string, Task> handler_;
-    std::vector<WorkContext> works_;
+	std::vector<WorkerPtr> workers_;
 };
 
 TaskManager* TaskManager::s_inst = nullptr;
@@ -79,10 +85,14 @@ void TaskManager::handleMessage(const PackagePtr &pacPtr, const SessionPtr &sess
 	std::string name = std::move(pacPtr->typeName);
     auto iter = d_func()->handler_.find(name);
     if (iter != d_func()->handler_.end()) {
+		TaskRunnable *runable = new TaskRunnable(sessionPtr, pacPtr, iter->second);
         if (pacPtr->header.isorder) {
-
+			int workId = sessionPtr->sessionId() % d_func()->workThreadCount_;
+			d_func()->workers_[workId]->io.post([runable]() {
+				runable->run();
+				delete runable;
+			});
         } else {
-            TaskRunnable *runable = new TaskRunnable(sessionPtr, pacPtr, iter->second);
             d_func()->pool_->start(runable);
         }
 	} else {

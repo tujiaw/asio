@@ -9,6 +9,7 @@
 using boost::asio::ip::tcp;
 
 static const int kTempBufSize = boost::asio::detail::default_max_transfer_size;
+static std::atomic<int> s_sessionId = 0;
 
 std::string endpoint2str(const tcp::endpoint &endpoint)
 {
@@ -22,7 +23,7 @@ struct SessionData {
 		: socket_(std::move(*(tcp::socket*)socket))
 		, io_(socket_.get_io_service())
         , id_(0)
-        , remoteEndpoint_(endpoint2str(socket_.remote_endpoint()))
+		, sessionId_(s_sessionId++)
 	{
 	}
 
@@ -33,7 +34,7 @@ struct SessionData {
 	std::mutex subscribeMutex_;
 	std::vector<std::string> subscribeList_;
     std::atomic<int> id_;
-    std::string remoteEndpoint_;
+	int sessionId_;
 };
 
 Session::Session(void* socket)
@@ -108,7 +109,12 @@ void Session::removeSubscribe(const std::string &typeName)
 
 std::string Session::remoteEndpoint() const
 {
-    return d->remoteEndpoint_;
+	return endpoint2str(d->socket_.remote_endpoint());
+}
+
+int Session::sessionId() const
+{
+	return d->sessionId_;
 }
 
 void Session::onRead()

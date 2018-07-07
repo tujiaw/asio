@@ -39,9 +39,10 @@ public:
 
     int sendMessage(const MessagePtr &msgPtr, MessagePtr &rspPtr, int msTimeout = kMsTimeout);
     int postMessage(const MessagePtr &msgPtr, const Response &res, int msTimeout = kMsTimeout);
-    int postMessage(bool isOrder, const MessagePtr &msgPtr, const Response &res, int msTimeout = kMsTimeout);
+	int postOrderMessage(const MessagePtr &msgPtr, const Response &res, int msTimeout = kMsTimeout);
 
 private:
+	int postMessage(bool isOrder, const MessagePtr &msgPtr, const Response &res, int msTimeout = kMsTimeout);
 	void close();
 	void onRead();
 	void onWrite();

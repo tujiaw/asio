@@ -41,3 +41,12 @@ int MsgClient::postMessage(const MessagePtr &msgPtr, const Response &res, int ms
     }
     return d_func()->postMessage(msgPtr, res, msTimeout);
 }
+
+int MsgClient::postOrderMessage(const MessagePtr &msgPtr, const Response &res, int msTimeout)
+{
+	if (d_func()->stopped()) {
+		LOG(WARNING) << "service stopped";
+		return eDisconnect;
+	}
+	return d_func()->postOrderMessage(msgPtr, res, msTimeout);
+}

@@ -17,6 +17,7 @@ public:
 	void addSubscribe(const std::string &typeName);
 	void removeSubscribe(const std::string &typeName);
 	std::string remoteEndpoint() const;
+	int sessionId() const;
 
 private:
 	void onRead();

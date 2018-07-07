@@ -101,6 +101,11 @@ int AsioClient::postMessage(const MessagePtr &msgPtr, const Response &res, int m
     return postMessage(false, msgPtr, res, msTimeout);
 }
 
+int AsioClient::postOrderMessage(const MessagePtr &msgPtr, const Response &res, int msTimeout)
+{
+	return postMessage(true, msgPtr, res, msTimeout);
+}
+
 int AsioClient::postMessage(bool isOrder, const MessagePtr &msgPtr, const Response &res, int msTimeout)
 {
     if (io_.stopped()) {
