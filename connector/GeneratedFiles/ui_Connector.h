@@ -47,6 +47,8 @@ public:
     QLabel *label_3;
     QPushButton *pbClear;
     QSpacerItem *horizontalSpacer_2;
+    QHBoxLayout *horizontalLayout_4;
+    QListWidget *lwSendData;
     QListWidget *lwRecvData;
     QLabel *labelStatus;
 
@@ -146,10 +148,21 @@ public:
 
         verticalLayout->addLayout(horizontalLayout_3);
 
+        horizontalLayout_4 = new QHBoxLayout();
+        horizontalLayout_4->setSpacing(6);
+        horizontalLayout_4->setObjectName(QStringLiteral("horizontalLayout_4"));
+        lwSendData = new QListWidget(ConnectorClass);
+        lwSendData->setObjectName(QStringLiteral("lwSendData"));
+
+        horizontalLayout_4->addWidget(lwSendData);
+
         lwRecvData = new QListWidget(ConnectorClass);
         lwRecvData->setObjectName(QStringLiteral("lwRecvData"));
 
-        verticalLayout->addWidget(lwRecvData);
+        horizontalLayout_4->addWidget(lwRecvData);
+
+
+        verticalLayout->addLayout(horizontalLayout_4);
 
         labelStatus = new QLabel(ConnectorClass);
         labelStatus->setObjectName(QStringLiteral("labelStatus"));

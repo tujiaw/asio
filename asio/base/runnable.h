@@ -1,5 +1,5 @@
-#ifndef RUNNABLE_H
-#define RUNNABLE_H
+#ifndef ASIO_BASE_RUNNABLE_H_
+#define ASIO_BASE_RUNNABLE_H_
 
 // 可运行的任务，默认支持自动销毁，通过重载run来实现要执行的任务
 class Runnable {
@@ -19,4 +19,5 @@ private:
 	friend class ThreadPoolThread;
 };
 
-#endif // RUNNABLE_H
+#endif // ASIO_BASE_RUNNABLE_H_
+

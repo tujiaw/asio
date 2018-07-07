@@ -1,4 +1,5 @@
-#pragma once
+#ifndef ASIO_BASE_SESSION_H_
+#define ASIO_BASE_SESSION_H_
 
 #include "desc.h"
 #include <mutex>
@@ -42,3 +43,5 @@ private:
 	std::mutex mutex_;
 	std::vector<Session*> sessionList_;
 };
+
+#endif // ASIO_BASE_SESSION_H_

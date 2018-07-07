@@ -1,5 +1,5 @@
-#ifndef THREADPOOL_P_H
-#define THREADPOOL_P_H
+#ifndef ASIO_BASE_THREADPOOL_P_H
+#define ASIO_BASE_THREADPOOL_P_H
 
 #include <condition_variable>
 #include <list>
@@ -51,4 +51,4 @@ public:
 	std::size_t activeThreads;
 };
 
-#endif // THREADPOOL_P_H
+#endif // ASIO_BASE_THREADPOOL_P_H

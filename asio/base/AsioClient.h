@@ -1,4 +1,5 @@
-#pragma once
+#ifndef ASIO_BASE_ASIOCLIENT_H_
+#define ASIO_BASE_ASIOCLIENT_H_
 
 #include <boost/asio.hpp>
 #include <thread>
@@ -79,3 +80,4 @@ private:
 	std::map<std::string, PublishFunc> publishMap_;
 };
 
+#endif // ASIO_BASE_ASIOCLIENT_H_

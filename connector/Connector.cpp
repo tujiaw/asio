@@ -18,6 +18,7 @@ Connector::Connector(QWidget *parent)
 	connect(ui.pbClear, &QPushButton::clicked, this, &Connector::onRecvDataClear);
 	connect(ui.pbHello, &QPushButton::clicked, this, &Connector::onHello);
 	connect(timer_, &QTimer::timeout, this, &Connector::onTimer);
+	connect(this, &Connector::sigResult, this, &Connector::onResult, Qt::QueuedConnection);
 
 	ui.leAddress->setText("127.0.0.1:5566");
 	ui.teSendData->setText("hello, world!");
@@ -57,8 +58,18 @@ void Connector::onTimer()
 	sendMsg();
 }
 
+void Connector::onResult(const QString &text)
+{
+	if (ui.lwRecvData->count() > 1000) {
+		ui.lwRecvData->clear();
+	}
+	ui.lwRecvData->addItem(text);
+	ui.lwRecvData->scrollToBottom();
+}
+
 void Connector::onRecvDataClear()
 {
+	ui.lwSendData->clear();
 	ui.lwRecvData->clear();
 }
 
@@ -75,18 +86,27 @@ void Connector::sendMsg()
     PbBase::EchoReq *req = (PbBase::EchoReq*)msgPtr.get();
     req->set_content(content);
 
-    conn_.postMessage(msgPtr, [content](int error, const PackagePtr &reqMsgPtr, const PackagePtr &rspMsgPtr) {
+    conn_.postOrderMessage(msgPtr, [this, content](int error, const PackagePtr &reqMsgPtr, const PackagePtr &rspMsgPtr) {
         if (error) {
             LOG(ERROR) << "on post error:" << error;
         } else {
             PbBase::EchoRsp *msg = static_cast<PbBase::EchoRsp*>(rspMsgPtr->msgPtr.get());
             if (msg->content() == content) {
                 LOG(INFO) << rspMsgPtr->header.msgId << ",ok";
+				int pos = msg->content().find_first_of(':');
+				QString rspId = QString::fromStdString(msg->content().substr(0, pos));
+				emit sigResult(rspId);
             } else {
                 LOG(ERROR) << "failed";
             }
         }
     });
+
+	if (ui.lwSendData->count() > 1000) {
+		ui.lwSendData->clear();
+	}
+	ui.lwSendData->addItem(QString::number(id_));
+	ui.lwSendData->scrollToBottom();
 
     //MessagePtr rsp;
     //if (0 == conn_.sendMessage(msgPtr, rsp)) {

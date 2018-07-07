@@ -1,4 +1,5 @@
-#pragma once
+#ifndef ASIO_BASE_TASKMANAGER_H_
+#define ASIO_BASE_TASKMANAGER_H_
 
 #include "desc.h"
 #include <thread>
@@ -24,3 +25,4 @@ private:
     D_PRIVATE(TaskManagerPrivate)
 };
 
+#endif // ASIO_BASE_TASKMANAGER_H_

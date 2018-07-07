@@ -1,4 +1,5 @@
-#pragma once
+#ifndef ASIO_BASE_DESC_H_
+#define ASIO_BASE_DESC_H_
 
 #include <functional>
 #include <memory>
@@ -72,3 +73,6 @@ enum ErrorCode {
     std::unique_ptr<ClassNamePrivate> d_ptr;                                      \
     inline ClassNamePrivate* d_func(void) { return this->d_ptr.get(); }           \
     inline const ClassNamePrivate* d_func(void) const { return this->d_ptr.get(); }
+
+
+#endif // ASIO_BASE_DESC_H_

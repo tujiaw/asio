@@ -1,4 +1,5 @@
-#pragma once
+#ifndef ASIO_BASE_PROTOHELP_H_
+#define ASIO_BASE_PROTOHELP_H_
 
 #include "desc.h"
 #include <string>
@@ -16,3 +17,4 @@ public:
 	static google::protobuf::Message* createMessage(const std::string & typeName);
 };
 
+#endif // ASIO_BASE_PROTOHELP_H_

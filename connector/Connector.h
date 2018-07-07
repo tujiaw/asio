@@ -22,8 +22,12 @@ public:
 
 	void sendMsg();
 
+signals:
+	void sigResult(const QString &text);
+
 public slots:
 	void onTimer();
+	void onResult(const QString &text);
 
 private:
 	Ui::ConnectorClass ui;

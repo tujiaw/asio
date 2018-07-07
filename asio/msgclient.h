@@ -5,7 +5,7 @@
 
 class MsgClient {
 public:
-    explicit MsgClient(const std::string &addressint, int heartbeatSeconds = 0);
+    explicit MsgClient(const std::string &address, int heartbeatSeconds = 0);
     ~MsgClient();
     MsgClient(const MsgClient&) = delete;
     MsgClient& operator=(const MsgClient&) = delete;

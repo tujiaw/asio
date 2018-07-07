@@ -1,5 +1,5 @@
-#ifndef THREADPOOLTHREAD_H
-#define THREADPOOLTHREAD_H
+#ifndef ASIO_BASE_THREADPOOLTHREAD_H
+#define ASIO_BASE_THREADPOOLTHREAD_H
 
 #include <condition_variable>
 
@@ -25,4 +25,4 @@ public:
 	std::thread* thread;
 };
 
-#endif // THREADPOOLTHREAD_H
+#endif // ASIO_BASE_THREADPOOLTHREAD_H

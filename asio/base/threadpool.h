@@ -1,5 +1,5 @@
-#ifndef THREADPOOL_H
-#define THREADPOOL_H
+#ifndef ASIO_BASE_THREADPOOL_H
+#define ASIO_BASE_THREADPOOL_H
 
 #include <limits>
 #include <memory>
@@ -55,4 +55,4 @@ private:
 };
 
 
-#endif // THREADPOOL_H
+#endif // ASIO_BASE_THREADPOOL_H

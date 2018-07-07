@@ -1,4 +1,5 @@
-#pragma once
+#ifndef ASIO_BASE_ASIOSERVER_H_
+#define ASIO_BASE_ASIOSERVER_H_
 
 #include <boost/asio.hpp>
 #include <thread>
@@ -31,3 +32,4 @@ private:
 	std::thread runthread_;
 };
 
+#endif // ASIO_BASE_ASIOSERVER_H_

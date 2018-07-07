@@ -135,7 +135,14 @@
     </layout>
    </item>
    <item>
-    <widget class="QListWidget" name="lwRecvData"/>
+    <layout class="QHBoxLayout" name="horizontalLayout_4">
+     <item>
+      <widget class="QListWidget" name="lwSendData"/>
+     </item>
+     <item>
+      <widget class="QListWidget" name="lwRecvData"/>
+     </item>
+    </layout>
    </item>
    <item>
     <widget class="QLabel" name="labelStatus">
