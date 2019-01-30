@@ -47,16 +47,17 @@ typedef std::shared_ptr<Worker> WorkerPtr;
 class TaskManagerPrivate {
 public:
     TaskManagerPrivate() : 
-		pool_(new ThreadPool()),
-		workThreadCount_(std::max(std::thread::hardware_concurrency() * 2, 1u)) {
+        workThreadCount_(std::max(std::thread::hardware_concurrency() * 2, 1u)),
+        pool_(new ThreadPool(workThreadCount_))
+    {
         for (int i = 0; i < workThreadCount_; i++) {
 			workers_.push_back(std::make_shared<Worker>());
         }
     }
 
+    int workThreadCount_;
 	std::unique_ptr<ThreadPool> pool_;
 	std::map<std::string, Task> handler_;
-    int workThreadCount_;
 	std::vector<WorkerPtr> workers_;
 };
 
@@ -85,15 +86,16 @@ void TaskManager::handleMessage(const PackagePtr &pacPtr, const SessionPtr &sess
 	std::string name = std::move(pacPtr->typeName);
     auto iter = d_func()->handler_.find(name);
     if (iter != d_func()->handler_.end()) {
-		TaskRunnable *runable = new TaskRunnable(sessionPtr, pacPtr, iter->second);
+        const Task &task = iter->second;
         if (pacPtr->header.isorder) {
 			int workId = sessionPtr->sessionId() % d_func()->workThreadCount_;
-			d_func()->workers_[workId]->io.post([runable]() {
-				runable->run();
-				delete runable;
+            d_func()->workers_[workId]->io.post([=]() {
+                task(sessionPtr, pacPtr);
 			});
         } else {
-            d_func()->pool_->start(runable);
+            d_func()->pool_->run([=]() {
+                task(sessionPtr, pacPtr);
+            });
         }
 	} else {
 		std::cout << "message discard:" << name;
@@ -102,6 +104,5 @@ void TaskManager::handleMessage(const PackagePtr &pacPtr, const SessionPtr &sess
 
 void TaskManager::destory()
 {
-    d_func()->pool_->clear();
-    d_func()->pool_->waitForDone();
+    d_func()->pool_->stop();
 }

@@ -86,7 +86,7 @@ void Connector::sendMsg()
     PbBase::EchoReq *req = (PbBase::EchoReq*)msgPtr.get();
     req->set_content(content);
 
-    conn_.postOrderMessage(msgPtr, [this, content](int error, const PackagePtr &reqMsgPtr, const PackagePtr &rspMsgPtr) {
+    conn_.postMessage(msgPtr, [this, content](int error, const PackagePtr &reqMsgPtr, const PackagePtr &rspMsgPtr) {
         if (error) {
             LOG(ERROR) << "on post error:" << error;
         } else {

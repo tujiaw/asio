@@ -64,8 +64,8 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)asio\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>asiod.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -84,40 +84,12 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
+      <AdditionalLibraryDirectories>$(SolutionDir)asio\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>asio.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\asio\base\AsioClient.cpp" />
-    <ClCompile Include="..\asio\base\AsioServer.cpp" />
-    <ClCompile Include="..\asio\base\Buffer.cpp" />
-    <ClCompile Include="..\asio\base\ProtoHelp.cpp" />
-    <ClCompile Include="..\asio\base\session.cpp" />
-    <ClCompile Include="..\asio\base\TaskManager.cpp" />
-    <ClCompile Include="..\asio\base\threadpool.cpp" />
-    <ClCompile Include="..\asio\base\threadpoolthread.cpp" />
-    <ClCompile Include="..\asio\base\threadpool_p.cpp" />
-    <ClCompile Include="..\asio\base\util.cpp" />
-    <ClCompile Include="..\asio\msgclient.cpp" />
-    <ClCompile Include="..\asio\msgserver.cpp" />
-    <ClCompile Include="..\asio\proto\pb_base.pb.cc" />
     <ClCompile Include="main.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="..\asio\base\AsioClient.h" />
-    <ClInclude Include="..\asio\base\AsioServer.h" />
-    <ClInclude Include="..\asio\base\Buffer.h" />
-    <ClInclude Include="..\asio\base\desc.h" />
-    <ClInclude Include="..\asio\base\ProtoHelp.h" />
-    <ClInclude Include="..\asio\base\runnable.h" />
-    <ClInclude Include="..\asio\base\session.h" />
-    <ClInclude Include="..\asio\base\TaskManager.h" />
-    <ClInclude Include="..\asio\base\threadpool.h" />
-    <ClInclude Include="..\asio\base\threadpoolthread.h" />
-    <ClInclude Include="..\asio\base\threadpool_p.h" />
-    <ClInclude Include="..\asio\base\util.h" />
-    <ClInclude Include="..\asio\msgclient.h" />
-    <ClInclude Include="..\asio\msgserver.h" />
-    <ClInclude Include="..\asio\proto\pb_base.pb.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

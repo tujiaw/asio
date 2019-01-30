@@ -1,7 +1,7 @@
 /****************************************************************************
 ** Meta object code from reading C++ file 'Connector.h'
 **
-** Created by: The Qt Meta Object Compiler version 67 (Qt 5.6.3)
+** Created by: The Qt Meta Object Compiler version 67 (Qt 5.3.2)
 **
 ** WARNING! All changes made in this file will be lost!
 *****************************************************************************/
@@ -12,7 +12,7 @@
 #if !defined(Q_MOC_OUTPUT_REVISION)
 #error "The header file 'Connector.h' doesn't include <QObject>."
 #elif Q_MOC_OUTPUT_REVISION != 67
-#error "This file was generated using the moc from 5.6.3. It"
+#error "This file was generated using the moc from 5.3.2. It"
 #error "cannot be used with the include files from this version of Qt."
 #error "(The moc has changed too much.)"
 #endif
@@ -20,22 +20,21 @@
 QT_BEGIN_MOC_NAMESPACE
 struct qt_meta_stringdata_Connector_t {
     QByteArrayData data[6];
-    char stringdata0[43];
+    char stringdata[43];
 };
 #define QT_MOC_LITERAL(idx, ofs, len) \
     Q_STATIC_BYTE_ARRAY_DATA_HEADER_INITIALIZER_WITH_OFFSET(len, \
-    qptrdiff(offsetof(qt_meta_stringdata_Connector_t, stringdata0) + ofs \
+    qptrdiff(offsetof(qt_meta_stringdata_Connector_t, stringdata) + ofs \
         - idx * sizeof(QByteArrayData)) \
     )
 static const qt_meta_stringdata_Connector_t qt_meta_stringdata_Connector = {
     {
-QT_MOC_LITERAL(0, 0, 9), // "Connector"
-QT_MOC_LITERAL(1, 10, 9), // "sigResult"
-QT_MOC_LITERAL(2, 20, 0), // ""
-QT_MOC_LITERAL(3, 21, 4), // "text"
-QT_MOC_LITERAL(4, 26, 7), // "onTimer"
-QT_MOC_LITERAL(5, 34, 8) // "onResult"
-
+QT_MOC_LITERAL(0, 0, 9),
+QT_MOC_LITERAL(1, 10, 9),
+QT_MOC_LITERAL(2, 20, 0),
+QT_MOC_LITERAL(3, 21, 4),
+QT_MOC_LITERAL(4, 26, 7),
+QT_MOC_LITERAL(5, 34, 8)
     },
     "Connector\0sigResult\0\0text\0onTimer\0"
     "onResult"
@@ -76,7 +75,6 @@ void Connector::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, v
 {
     if (_c == QMetaObject::InvokeMetaMethod) {
         Connector *_t = static_cast<Connector *>(_o);
-        Q_UNUSED(_t)
         switch (_id) {
         case 0: _t->sigResult((*reinterpret_cast< const QString(*)>(_a[1]))); break;
         case 1: _t->onTimer(); break;
@@ -90,7 +88,6 @@ void Connector::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, v
             typedef void (Connector::*_t)(const QString & );
             if (*reinterpret_cast<_t *>(func) == static_cast<_t>(&Connector::sigResult)) {
                 *result = 0;
-                return;
             }
         }
     }
@@ -98,7 +95,7 @@ void Connector::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, v
 
 const QMetaObject Connector::staticMetaObject = {
     { &QDialog::staticMetaObject, qt_meta_stringdata_Connector.data,
-      qt_meta_data_Connector,  qt_static_metacall, Q_NULLPTR, Q_NULLPTR}
+      qt_meta_data_Connector,  qt_static_metacall, 0, 0}
 };
 
 
@@ -109,8 +106,8 @@ const QMetaObject *Connector::metaObject() const
 
 void *Connector::qt_metacast(const char *_clname)
 {
-    if (!_clname) return Q_NULLPTR;
-    if (!strcmp(_clname, qt_meta_stringdata_Connector.stringdata0))
+    if (!_clname) return 0;
+    if (!strcmp(_clname, qt_meta_stringdata_Connector.stringdata))
         return static_cast<void*>(const_cast< Connector*>(this));
     return QDialog::qt_metacast(_clname);
 }
@@ -135,7 +132,7 @@ int Connector::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
 // SIGNAL 0
 void Connector::sigResult(const QString & _t1)
 {
-    void *_a[] = { Q_NULLPTR, const_cast<void*>(reinterpret_cast<const void*>(&_t1)) };
+    void *_a[] = { 0, const_cast<void*>(reinterpret_cast<const void*>(&_t1)) };
     QMetaObject::activate(this, &staticMetaObject, 0, _a);
 }
 QT_END_MOC_NAMESPACE

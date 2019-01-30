@@ -38,15 +38,6 @@
       <Extensions>cpp;moc</Extensions>
       <SourceControlFiles>False</SourceControlFiles>
     </Filter>
-    <Filter Include="asio">
-      <UniqueIdentifier>{7c59db62-26d2-41a5-8f56-2dc314b73488}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="asio\base">
-      <UniqueIdentifier>{ce4d5b4f-1276-4c7b-9ac4-05d56b2591ea}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="asio\proto">
-      <UniqueIdentifier>{1b5d8bea-f3eb-4001-9292-b3209f0a529a}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -60,45 +51,6 @@
     </ClCompile>
     <ClCompile Include="GeneratedFiles\qrc_Connector.cpp">
       <Filter>Generated Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\asio\msgclient.cpp">
-      <Filter>asio</Filter>
-    </ClCompile>
-    <ClCompile Include="..\asio\msgserver.cpp">
-      <Filter>asio</Filter>
-    </ClCompile>
-    <ClCompile Include="..\asio\proto\pb_base.pb.cc">
-      <Filter>asio\proto</Filter>
-    </ClCompile>
-    <ClCompile Include="..\asio\base\AsioClient.cpp">
-      <Filter>asio\base</Filter>
-    </ClCompile>
-    <ClCompile Include="..\asio\base\AsioServer.cpp">
-      <Filter>asio\base</Filter>
-    </ClCompile>
-    <ClCompile Include="..\asio\base\Buffer.cpp">
-      <Filter>asio\base</Filter>
-    </ClCompile>
-    <ClCompile Include="..\asio\base\ProtoHelp.cpp">
-      <Filter>asio\base</Filter>
-    </ClCompile>
-    <ClCompile Include="..\asio\base\session.cpp">
-      <Filter>asio\base</Filter>
-    </ClCompile>
-    <ClCompile Include="..\asio\base\TaskManager.cpp">
-      <Filter>asio\base</Filter>
-    </ClCompile>
-    <ClCompile Include="..\asio\base\threadpool.cpp">
-      <Filter>asio\base</Filter>
-    </ClCompile>
-    <ClCompile Include="..\asio\base\threadpool_p.cpp">
-      <Filter>asio\base</Filter>
-    </ClCompile>
-    <ClCompile Include="..\asio\base\threadpoolthread.cpp">
-      <Filter>asio\base</Filter>
-    </ClCompile>
-    <ClCompile Include="..\asio\base\util.cpp">
-      <Filter>asio\base</Filter>
     </ClCompile>
     <ClCompile Include="Connector.cpp">
       <Filter>Source Files</Filter>
@@ -118,51 +70,6 @@
   <ItemGroup>
     <ClInclude Include="GeneratedFiles\ui_Connector.h">
       <Filter>Generated Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\asio\msgclient.h">
-      <Filter>asio</Filter>
-    </ClInclude>
-    <ClInclude Include="..\asio\msgserver.h">
-      <Filter>asio</Filter>
-    </ClInclude>
-    <ClInclude Include="..\asio\proto\pb_base.pb.h">
-      <Filter>asio\proto</Filter>
-    </ClInclude>
-    <ClInclude Include="..\asio\base\AsioClient.h">
-      <Filter>asio\base</Filter>
-    </ClInclude>
-    <ClInclude Include="..\asio\base\AsioServer.h">
-      <Filter>asio\base</Filter>
-    </ClInclude>
-    <ClInclude Include="..\asio\base\Buffer.h">
-      <Filter>asio\base</Filter>
-    </ClInclude>
-    <ClInclude Include="..\asio\base\desc.h">
-      <Filter>asio\base</Filter>
-    </ClInclude>
-    <ClInclude Include="..\asio\base\ProtoHelp.h">
-      <Filter>asio\base</Filter>
-    </ClInclude>
-    <ClInclude Include="..\asio\base\runnable.h">
-      <Filter>asio\base</Filter>
-    </ClInclude>
-    <ClInclude Include="..\asio\base\session.h">
-      <Filter>asio\base</Filter>
-    </ClInclude>
-    <ClInclude Include="..\asio\base\TaskManager.h">
-      <Filter>asio\base</Filter>
-    </ClInclude>
-    <ClInclude Include="..\asio\base\threadpool.h">
-      <Filter>asio\base</Filter>
-    </ClInclude>
-    <ClInclude Include="..\asio\base\threadpool_p.h">
-      <Filter>asio\base</Filter>
-    </ClInclude>
-    <ClInclude Include="..\asio\base\threadpoolthread.h">
-      <Filter>asio\base</Filter>
-    </ClInclude>
-    <ClInclude Include="..\asio\base\util.h">
-      <Filter>asio\base</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

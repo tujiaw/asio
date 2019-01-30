@@ -50,9 +50,9 @@
     <Link>
       <SubSystem>Windows</SubSystem>
       <OutputFile>$(OutDir)\$(ProjectName).exe</OutputFile>
-      <AdditionalLibraryDirectories>$(QTDIR)\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(QTDIR)\lib;$(SolutionDir)asio\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>qtmaind.lib;Qt5Cored.lib;Qt5Guid.lib;Qt5Networkd.lib;Qt5Widgetsd.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>qtmaind.lib;Qt5Cored.lib;Qt5Guid.lib;Qt5Networkd.lib;Qt5Widgetsd.lib;asiod.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -66,25 +66,12 @@
     <Link>
       <SubSystem>Windows</SubSystem>
       <OutputFile>$(OutDir)\$(ProjectName).exe</OutputFile>
-      <AdditionalLibraryDirectories>$(QTDIR)\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(QTDIR)\lib;$(SolutionDir)asio\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <GenerateDebugInformation>false</GenerateDebugInformation>
-      <AdditionalDependencies>qtmain.lib;Qt5Core.lib;Qt5Gui.lib;Qt5Network.lib;Qt5Widgets.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>qtmain.lib;Qt5Core.lib;Qt5Gui.lib;Qt5Network.lib;Qt5Widgets.lib;asio.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\asio\base\AsioClient.cpp" />
-    <ClCompile Include="..\asio\base\AsioServer.cpp" />
-    <ClCompile Include="..\asio\base\Buffer.cpp" />
-    <ClCompile Include="..\asio\base\ProtoHelp.cpp" />
-    <ClCompile Include="..\asio\base\session.cpp" />
-    <ClCompile Include="..\asio\base\TaskManager.cpp" />
-    <ClCompile Include="..\asio\base\threadpool.cpp" />
-    <ClCompile Include="..\asio\base\threadpoolthread.cpp" />
-    <ClCompile Include="..\asio\base\threadpool_p.cpp" />
-    <ClCompile Include="..\asio\base\util.cpp" />
-    <ClCompile Include="..\asio\msgclient.cpp" />
-    <ClCompile Include="..\asio\msgserver.cpp" />
-    <ClCompile Include="..\asio\proto\pb_base.pb.cc" />
     <ClCompile Include="Connector.cpp" />
     <ClCompile Include="GeneratedFiles\Debug\moc_Connector.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
@@ -125,21 +112,6 @@
     </CustomBuild>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\asio\base\AsioClient.h" />
-    <ClInclude Include="..\asio\base\AsioServer.h" />
-    <ClInclude Include="..\asio\base\Buffer.h" />
-    <ClInclude Include="..\asio\base\desc.h" />
-    <ClInclude Include="..\asio\base\ProtoHelp.h" />
-    <ClInclude Include="..\asio\base\runnable.h" />
-    <ClInclude Include="..\asio\base\session.h" />
-    <ClInclude Include="..\asio\base\TaskManager.h" />
-    <ClInclude Include="..\asio\base\threadpool.h" />
-    <ClInclude Include="..\asio\base\threadpoolthread.h" />
-    <ClInclude Include="..\asio\base\threadpool_p.h" />
-    <ClInclude Include="..\asio\base\util.h" />
-    <ClInclude Include="..\asio\msgclient.h" />
-    <ClInclude Include="..\asio\msgserver.h" />
-    <ClInclude Include="..\asio\proto\pb_base.pb.h" />
     <ClInclude Include="GeneratedFiles\ui_Connector.h" />
   </ItemGroup>
   <ItemGroup>

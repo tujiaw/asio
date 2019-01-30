@@ -13,105 +13,10 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
-    <Filter Include="asio">
-      <UniqueIdentifier>{55009768-c212-4012-b62b-5189bcd283dc}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="asio\base">
-      <UniqueIdentifier>{0c4a14ea-2fcd-4e2f-9f3b-2db43068cc44}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="asio\proto">
-      <UniqueIdentifier>{301a99d2-3b04-4080-8d0d-271ecbbb011f}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\asio\msgclient.cpp">
-      <Filter>asio</Filter>
-    </ClCompile>
-    <ClCompile Include="..\asio\msgserver.cpp">
-      <Filter>asio</Filter>
-    </ClCompile>
-    <ClCompile Include="..\asio\base\AsioClient.cpp">
-      <Filter>asio\base</Filter>
-    </ClCompile>
-    <ClCompile Include="..\asio\base\AsioServer.cpp">
-      <Filter>asio\base</Filter>
-    </ClCompile>
-    <ClCompile Include="..\asio\base\Buffer.cpp">
-      <Filter>asio\base</Filter>
-    </ClCompile>
-    <ClCompile Include="..\asio\base\ProtoHelp.cpp">
-      <Filter>asio\base</Filter>
-    </ClCompile>
-    <ClCompile Include="..\asio\base\session.cpp">
-      <Filter>asio\base</Filter>
-    </ClCompile>
-    <ClCompile Include="..\asio\base\TaskManager.cpp">
-      <Filter>asio\base</Filter>
-    </ClCompile>
-    <ClCompile Include="..\asio\base\threadpool.cpp">
-      <Filter>asio\base</Filter>
-    </ClCompile>
-    <ClCompile Include="..\asio\base\threadpool_p.cpp">
-      <Filter>asio\base</Filter>
-    </ClCompile>
-    <ClCompile Include="..\asio\base\threadpoolthread.cpp">
-      <Filter>asio\base</Filter>
-    </ClCompile>
-    <ClCompile Include="..\asio\base\util.cpp">
-      <Filter>asio\base</Filter>
-    </ClCompile>
-    <ClCompile Include="..\asio\proto\pb_base.pb.cc">
-      <Filter>asio\proto</Filter>
-    </ClCompile>
     <ClCompile Include="main.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="..\asio\msgclient.h">
-      <Filter>asio</Filter>
-    </ClInclude>
-    <ClInclude Include="..\asio\msgserver.h">
-      <Filter>asio</Filter>
-    </ClInclude>
-    <ClInclude Include="..\asio\base\AsioClient.h">
-      <Filter>asio\base</Filter>
-    </ClInclude>
-    <ClInclude Include="..\asio\base\AsioServer.h">
-      <Filter>asio\base</Filter>
-    </ClInclude>
-    <ClInclude Include="..\asio\base\Buffer.h">
-      <Filter>asio\base</Filter>
-    </ClInclude>
-    <ClInclude Include="..\asio\base\desc.h">
-      <Filter>asio\base</Filter>
-    </ClInclude>
-    <ClInclude Include="..\asio\base\ProtoHelp.h">
-      <Filter>asio\base</Filter>
-    </ClInclude>
-    <ClInclude Include="..\asio\base\runnable.h">
-      <Filter>asio\base</Filter>
-    </ClInclude>
-    <ClInclude Include="..\asio\base\session.h">
-      <Filter>asio\base</Filter>
-    </ClInclude>
-    <ClInclude Include="..\asio\base\TaskManager.h">
-      <Filter>asio\base</Filter>
-    </ClInclude>
-    <ClInclude Include="..\asio\base\threadpool.h">
-      <Filter>asio\base</Filter>
-    </ClInclude>
-    <ClInclude Include="..\asio\base\threadpool_p.h">
-      <Filter>asio\base</Filter>
-    </ClInclude>
-    <ClInclude Include="..\asio\base\threadpoolthread.h">
-      <Filter>asio\base</Filter>
-    </ClInclude>
-    <ClInclude Include="..\asio\base\util.h">
-      <Filter>asio\base</Filter>
-    </ClInclude>
-    <ClInclude Include="..\asio\proto\pb_base.pb.h">
-      <Filter>asio\proto</Filter>
-    </ClInclude>
   </ItemGroup>
 </Project>

@@ -1,58 +1,125 @@
-#ifndef ASIO_BASE_THREADPOOL_H
-#define ASIO_BASE_THREADPOOL_H
-
-#include <limits>
-#include <memory>
+#include <stdlib.h>
+#include <functional>
+#include <thread>
+#include <string>
+#include <mutex>
+#include <condition_variable>
 #include <vector>
-#include "desc.h"
+#include <memory>
+#include <assert.h>
+#include <algorithm>
+#include <queue>
+#include <process.h>
 
-class Runnable;
-class ThreadPoolPrivate;
-
-// 线程池，外部接口供用户使用
-class ThreadPool {
+class ThreadPool
+{
 public:
-	ThreadPool(void);
-	~ThreadPool(void);
-	ThreadPool(const ThreadPool&) = delete;
-	ThreadPool& operator=(const ThreadPool&) = delete;
+    typedef std::function<void()> Task;
 
-	// 启动一个任务，如果没有空闲的线程就入队
-	void start(Runnable* runnable, int priority = 0);
-	// 试着去启动一个任务，如果没有空闲线程就返回false
-	bool tryStart(Runnable* runnable);
+    ThreadPool(int num)
+        : num_(num)
+        , maxQueueSize_(0)
+        , running_(false)
+    {
+    }
 
-	// 到期时间，等待时间
-	unsigned long int expiryTimeout(void) const;
-	void setExpiryTimeout(unsigned long int v);
+    ~ThreadPool()
+    {
+        if (running_) {
+            stop();
+        }
+    }
 
-	// 最大线程数，初始化为CPU内核数
-	std::size_t maxThreadCount(void) const;
-	void setMaxThreadCount(std::size_t n);
+    ThreadPool(const ThreadPool&) = delete;
+    void operator=(const ThreadPool&) = delete;
 
-	// 激活的线程数
-	std::size_t activeThreadCount(void) const;
+    void setMaxQueueSize(int maxSize)
+    {
+        maxQueueSize_ = maxSize;
+    }
 
-	// 任务队列大小
-	std::size_t queueSize(void) const;
+    void start()
+    {
+        assert(threads_.empty());
+        running_ = true;
+        threads_.reserve(num_);
+        for (int i = 0; i < num_; i++) {
+            threads_.push_back(std::thread(std::bind(&ThreadPool::threadFunc, this)));
+        }
+    }
 
-	// 保留线程，暂时不使用，调用一次新增一个
-	void reserveThread(void);
-	// 释放线程，将保留的线程拿出来使用，调用一次释放一次
-	void releaseThread(void);
+    void stop()
+    {
+        {
+            std::unique_lock<std::mutex> ul(mutex_);
+            running_ = false;
+            notEmpty_.notify_all();
+        }
 
-	// 等待所有激活的线程执行完成
-	bool waitForDone(unsigned long int timeout = std::numeric_limits<unsigned long int>::max());
+        for (auto &iter : threads_) {
+            if (iter.joinable()) {
+                iter.join();
+            }
+        }
+    }
 
-	// 清理掉所有未执行的任务
-	void clear(void);
-
-	// 删除一个任务
-	void cancel(Runnable* runnable);
+    void run(const Task &t)
+    {
+        if (threads_.empty()) {
+            t();
+        } else {
+            std::unique_lock<std::mutex> ul(mutex_);
+            while (isFull()) {
+                notFull_.wait(ul);
+            }
+            assert(!isFull());
+            queue_.push_back(t);
+            notEmpty_.notify_one();
+        }
+    }
 
 private:
-	D_PRIVATE(ThreadPoolPrivate)
+    bool isFull() const
+    {
+        return maxQueueSize_ > 0 && queue_.size() >= maxQueueSize_;
+    }
+
+    void threadFunc()
+    {
+        printf("create thread id:0x%x\n", std::this_thread::get_id());
+        while (running_) {
+            Task task(take());
+            if (task) {
+                task();
+            }
+        }
+        printf("end thread id:0x%x\n", std::this_thread::get_id());
+    }
+
+    Task take()
+    {
+        std::unique_lock<std::mutex> ul(mutex_);
+        while (queue_.empty() && running_) {
+            notEmpty_.wait(ul);
+        }
+        Task task;
+        if (!queue_.empty()) {
+            task = queue_.front();
+            queue_.pop_front();
+            if (maxQueueSize_ > 0) {
+                notFull_.notify_one();
+            }
+        }
+        return task;
+    }
+
+private:
+    int num_;
+    std::mutex mutex_;
+    std::condition_variable notEmpty_;
+    std::condition_variable notFull_;
+    std::vector<std::thread> threads_;
+    std::deque<Task> queue_;
+    size_t maxQueueSize_;
+    bool running_;
 };
-
-
-#endif // ASIO_BASE_THREADPOOL_H
