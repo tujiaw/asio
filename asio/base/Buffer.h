@@ -3,14 +3,16 @@
 
 #include <vector>
 #include <string>
+#include <cstring>
 #include <memory>
+#include <stdint.h>
 #include <assert.h>
 
 class Buffer
 {
 public:
 	static const size_t kCheapPrepend = 0;
-	static const size_t kInitialSize = 2048;
+	static const size_t kInitialSize = 4096;
 
 	Buffer()
 		: buffer_(kCheapPrepend + kInitialSize)
@@ -73,17 +75,17 @@ public:
 
 	void retrieveInt32()
 	{
-		retrieve(sizeof(__int32));
+		retrieve(sizeof(int32_t));
 	}
 
 	void retrieveInt16()
 	{
-		retrieve(sizeof(__int16));
+		retrieve(sizeof(int16_t));
 	}
 
 	void retrieveInt8()
 	{
-		retrieve(sizeof(__int8));
+		retrieve(sizeof(int8_t));
 	}
 
 	void retrieveAll()
@@ -113,7 +115,8 @@ public:
 	void append(const char* data, size_t len)
 	{
 		ensureWritableBytes(len);
-		std::copy(data, data + len, stdext::checked_array_iterator<char*>(beginWrite(), len));
+		//std::copy(data, data + len, stdext::checked_array_iterator<char*>(beginWrite(), len));
+        std::copy(data, data + len, beginWrite());
 		hasWritten(len);
 	}
 
@@ -146,20 +149,20 @@ public:
 		writerIndex_ += len;
 	}
 
-	void appendInt32(__int32 x);
-	void appendInt16(__int16 x);
-	void appendInt8(__int8 x);
-	__int32 readInt32();
-	__int16 readInt16();
-	__int8 readInt8();
-	__int32 peekInt32() const;
-	__int16 peekInt16() const;
-	__int8 peekInt8() const;
-	void prependInt32(__int32 x);
-	void prependInt16(__int16 x);
-	void prependInt8(__int8 x);
+	void appendInt32(int32_t x);
+	void appendInt16(int16_t x);
+	void appendInt8(int8_t x);
+	int32_t readInt32();
+	int16_t readInt16();
+	int8_t readInt8();
+	int32_t peekInt32() const;
+	int16_t peekInt16() const;
+	int8_t peekInt8() const;
+	void prependInt32(int32_t x);
+	void prependInt16(int16_t x);
+	void prependInt8(int8_t x);
 
-	bool Buffer::read(void* data, size_t len)
+	bool read(void* data, size_t len)
 	{
 		if (data && readableBytes() >= len)
 		{
@@ -175,7 +178,8 @@ public:
 		assert(len <= prependableBytes());
 		readerIndex_ -= len;
 		const char *d = static_cast<const char*>(data);
-		std::copy(d, d + len, stdext::checked_array_iterator<char*>(begin() + readerIndex_, len));
+		//std::copy(d, d + len, stdext::checked_array_iterator<char*>(begin() + readerIndex_, len));
+        std::copy(d, d + len, begin() + readerIndex_);
 	}
 
 private:
@@ -198,8 +202,9 @@ private:
 		{
 			assert(kCheapPrepend < readerIndex_);
 			size_t readable = readableBytes();
-			std::copy(begin() + readerIndex_, begin() + writerIndex_,
-				stdext::checked_array_iterator<char*>(begin() + kCheapPrepend, writerIndex_ - readerIndex_));
+			//std::copy(begin() + readerIndex_, begin() + writerIndex_,
+			//	stdext::checked_array_iterator<char*>(begin() + kCheapPrepend, writerIndex_ - readerIndex_));
+            std::copy(begin() + readerIndex_, begin() + writerIndex_, begin() + kCheapPrepend);
 			readerIndex_ = kCheapPrepend;
 			writerIndex_ = readerIndex_ + readable;
 			assert(readable == readableBytes());

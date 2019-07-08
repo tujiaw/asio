@@ -1,16 +1,33 @@
 #ifndef ASIO_BASE_SESSION_H_
 #define ASIO_BASE_SESSION_H_
 
-#include "desc.h"
 #include <mutex>
+#include <memory>
+#include <set>
+#include <boost/asio.hpp>
+#include <boost/asio/io_service.hpp>
+#include <boost/system/error_code.hpp>
+#include "Package.h"
 
-class Session : public std::enable_shared_from_this<Session>
+using boost::asio::ip::tcp;
+
+class PublisherRoom;
+class TaskManager;
+struct SessionData;
+
+class Publisher {
+public:
+    virtual ~Publisher() {}
+    virtual void publishMessage(const MessagePtr &msg) = 0;
+};
+
+typedef std::shared_ptr<Publisher> PublisherPtr;
+
+class Session : public Publisher, public std::enable_shared_from_this<Session>
 {
 public:
-	explicit Session(void* socket);
-	~Session();
-	Session(const Session&) = delete;
-	Session& operator=(const Session&) = delete;
+    explicit Session(boost::asio::io_service &io, PublisherRoom &room, TaskManager &taskManager);
+    ~Session();
 	
 	void start();
 	void replyMessage(const PackagePtr &req, const MessagePtr &rspMsg);
@@ -19,29 +36,35 @@ public:
 	void removeSubscribe(const std::string &typeName);
 	std::string remoteEndpoint() const;
 	int sessionId() const;
+    tcp::socket& socket();
 
 private:
-	void onRead();
-	void onWrite(BufferPtr writeBuffer);
+    Session(const Session&);
+    Session& operator=(const Session&);
+	void startRead();
+    void onRead(boost::system::error_code ec, std::size_t length);
+	void write(BufferPtr writeBuffer);
+    void onWrite(boost::system::error_code ec, std::size_t length);
 	void postPackage(const PackagePtr &pack);
 
 private:
-	friend struct SessionData;
 	SessionData *d;
+    PublisherRoom &room_;
+    TaskManager &taskManager_;
 };
 
-class SessionManager
+typedef std::shared_ptr<Session> SessionPtr;
+
+class PublisherRoom
 {
 public:
-	static SessionManager* instance();
-	void addSession(Session *session);
-	void removeSession(Session *session);
+	void join(PublisherPtr publisher);
+    void leave(PublisherPtr publisher);
 	void publishMessage(const MessagePtr &msg);
 
 private:
-	static SessionManager *s_inst;
 	std::mutex mutex_;
-	std::vector<Session*> sessionList_;
+    std::set<PublisherPtr> publishers_;
 };
 
 #endif // ASIO_BASE_SESSION_H_

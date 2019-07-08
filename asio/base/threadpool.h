@@ -1,20 +1,16 @@
 #include <stdlib.h>
-#include <functional>
-#include <thread>
 #include <string>
-#include <mutex>
-#include <condition_variable>
 #include <vector>
 #include <memory>
 #include <assert.h>
 #include <algorithm>
 #include <queue>
-#include <process.h>
+#include <boost/thread.hpp>
 
 class ThreadPool
 {
 public:
-    typedef std::function<void()> Task;
+    typedef boost::function<void()> Task;
 
     ThreadPool(int num)
         : num_(num)
@@ -30,9 +26,6 @@ public:
         }
     }
 
-    ThreadPool(const ThreadPool&) = delete;
-    void operator=(const ThreadPool&) = delete;
-
     void setMaxQueueSize(int maxSize)
     {
         maxQueueSize_ = maxSize;
@@ -44,21 +37,21 @@ public:
         running_ = true;
         threads_.reserve(num_);
         for (int i = 0; i < num_; i++) {
-            threads_.push_back(std::thread(std::bind(&ThreadPool::threadFunc, this)));
+            threads_.push_back(boost::thread(boost::bind(&ThreadPool::threadFunc, this)));
         }
     }
 
     void stop()
     {
         {
-            std::unique_lock<std::mutex> ul(mutex_);
+            boost::unique_lock<boost::mutex> ul(mutex_);
             running_ = false;
             notEmpty_.notify_all();
         }
 
-        for (auto &iter : threads_) {
-            if (iter.joinable()) {
-                iter.join();
+        for (std::vector<boost::thread>::iterator iter = threads_.begin(); iter != threads_.end(); ++iter) {
+            if (iter->joinable()) {
+                iter->join();
             }
         }
     }
@@ -68,7 +61,7 @@ public:
         if (threads_.empty()) {
             t();
         } else {
-            std::unique_lock<std::mutex> ul(mutex_);
+            boost::unique_lock<boost::mutex> ul(mutex_);
             while (isFull()) {
                 notFull_.wait(ul);
             }
@@ -79,6 +72,9 @@ public:
     }
 
 private:
+    ThreadPool(const ThreadPool&);
+    void operator=(const ThreadPool&);
+
     bool isFull() const
     {
         return maxQueueSize_ > 0 && queue_.size() >= maxQueueSize_;
@@ -86,19 +82,19 @@ private:
 
     void threadFunc()
     {
-        printf("create thread id:0x%x\n", std::this_thread::get_id());
+        printf("create thread id:0x%x\n", boost::this_thread::get_id());
         while (running_) {
             Task task(take());
             if (task) {
                 task();
             }
         }
-        printf("end thread id:0x%x\n", std::this_thread::get_id());
+        printf("end thread id:0x%x\n", boost::this_thread::get_id());
     }
 
     Task take()
     {
-        std::unique_lock<std::mutex> ul(mutex_);
+        boost::unique_lock<boost::mutex> ul(mutex_);
         while (queue_.empty() && running_) {
             notEmpty_.wait(ul);
         }
@@ -115,10 +111,10 @@ private:
 
 private:
     int num_;
-    std::mutex mutex_;
-    std::condition_variable notEmpty_;
-    std::condition_variable notFull_;
-    std::vector<std::thread> threads_;
+    boost::mutex mutex_;
+    boost::condition_variable notEmpty_;
+    boost::condition_variable notFull_;
+    std::vector<boost::thread> threads_;
     std::deque<Task> queue_;
     size_t maxQueueSize_;
     bool running_;

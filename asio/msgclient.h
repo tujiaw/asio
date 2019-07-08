@@ -1,11 +1,11 @@
 #ifndef ASIO_MSGCLIENT_H_
 #define ASIO_MSGCLIENT_H_
 
-#include "base/desc.h"
+#include "base/Package.h"
 
 class MsgClient {
 public:
-    explicit MsgClient(const std::string &address, int heartbeatSeconds = 0);
+    explicit MsgClient(const std::vector<std::string> &addressList, int heartbeatSeconds = 0);
     ~MsgClient();
     MsgClient(const MsgClient&) = delete;
     MsgClient& operator=(const MsgClient&) = delete;
@@ -19,7 +19,6 @@ public:
 	int postOrderMessage(const MessagePtr &msgPtr, const Response &res, int msTimeout = kMsTimeout);
 
 private:
-    const std::string address_;
     D_PRIVATE(AsioClient);
 };
 

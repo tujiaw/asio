@@ -1,15 +1,17 @@
 #include "Session.h"
-#include "ProtoHelp.h"
+#include <deque>
 #include <boost/asio.hpp>
 #include <boost/lexical_cast.hpp>
-#include <thread>
+#include <boost/thread.hpp>
+#include <boost/atomic.hpp>
+#include "ProtoHelp.h"
 #include "Buffer.h"
 #include "TaskManager.h"
 
 using boost::asio::ip::tcp;
 
 static const int kTempBufSize = boost::asio::detail::default_max_transfer_size;
-static std::atomic<int> s_sessionId = 0;
+static boost::atomic<int> s_sessionId(0);
 
 std::string endpoint2str(const tcp::endpoint &endpoint)
 {
@@ -19,41 +21,41 @@ std::string endpoint2str(const tcp::endpoint &endpoint)
 }
 
 struct SessionData {
-	SessionData(void* socket) 
-		: socket_(std::move(*(tcp::socket*)socket))
-		, io_(socket_.get_io_service())
+    SessionData(boost::asio::io_service &io)
+		: io_(io)
+        , socket_(io)
         , id_(0)
 		, sessionId_(s_sessionId++)
 	{
 	}
 
+    boost::asio::io_service &io_;
 	tcp::socket socket_;
-	boost::asio::io_context &io_;
 	char tempBuf_[kTempBufSize];
 	Buffer readBuffer_;
-	std::mutex subscribeMutex_;
-	std::vector<std::string> subscribeList_;
-    std::atomic<int> id_;
+    std::deque<BufferPtr> writeDeque_;
+	boost::mutex subscribeMutex_;
+	std::set<std::string> subscribeList_;
+    boost::atomic<int> id_;
 	int sessionId_;
 };
 
-Session::Session(void* socket)
-	: d(new SessionData(socket))
+Session::Session(boost::asio::io_service &io, PublisherRoom &room, TaskManager &taskManager)
+    : d(new SessionData(io)), room_(room), taskManager_(taskManager)
 {
-    std::cout << "Session create:" << remoteEndpoint() << std::endl;
-	SessionManager::instance()->addSession(this);
 }
 
 Session::~Session()
 {
-	SessionManager::instance()->removeSession(this);
 	std::cout << "Session delete:" << remoteEndpoint() << std::endl;
 	delete d;
 }
 
 void Session::start()
 {
-	onRead();
+    std::cout << "Session create:" << remoteEndpoint() << std::endl;
+    room_.join(shared_from_this());
+    startRead();
 }
 
 void Session::replyMessage(const PackagePtr &req, const MessagePtr &rspMsg)
@@ -75,8 +77,9 @@ void Session::publishMessage(const MessagePtr &msg)
 	}
 
 	{
-		std::lock_guard<std::mutex> lock(d->subscribeMutex_);
+        boost::lock_guard<boost::mutex> lock(d->subscribeMutex_);
 		if (std::find(d->subscribeList_.begin(), d->subscribeList_.end(), msg->GetTypeName()) == d->subscribeList_.end()) {
+            DLOG(WARNING) << "publishMessage no subscribe, typeName:" << msg->GetTypeName();
 			return;
 		}
 	}
@@ -92,24 +95,22 @@ void Session::publishMessage(const MessagePtr &msg)
 
 void Session::addSubscribe(const std::string &typeName)
 {
-	std::lock_guard<std::mutex> lock(d->subscribeMutex_);
-	if (std::find(d->subscribeList_.begin(), d->subscribeList_.end(), typeName) == d->subscribeList_.end()) {
-		d->subscribeList_.push_back(typeName);
-	}
+    boost::lock_guard<boost::mutex> lock(d->subscribeMutex_);
+    d->subscribeList_.insert(typeName);
 }
 
 void Session::removeSubscribe(const std::string &typeName)
 {
-	std::lock_guard<std::mutex> lock(d->subscribeMutex_);
-	auto it = std::find(d->subscribeList_.begin(), d->subscribeList_.end(), typeName);
-	if (it != d->subscribeList_.end()) {
-		d->subscribeList_.erase(it);
-	}
+    boost::lock_guard<boost::mutex> lock(d->subscribeMutex_);
+    d->subscribeList_.erase(typeName);
 }
 
 std::string Session::remoteEndpoint() const
 {
-	return endpoint2str(d->socket_.remote_endpoint());
+    if (d->socket_.is_open()) {
+        return endpoint2str(d->socket_.remote_endpoint());
+    }
+    return "";
 }
 
 int Session::sessionId() const
@@ -117,86 +118,87 @@ int Session::sessionId() const
 	return d->sessionId_;
 }
 
-void Session::onRead()
+tcp::socket& Session::socket()
 {
-	auto self(shared_from_this());
-	d->socket_.async_read_some(boost::asio::buffer(d->tempBuf_, kTempBufSize),
-        [this, self](boost::system::error_code ec, std::size_t length) {
-		if (!ec) {
-            d->readBuffer_.append(d->tempBuf_, length);
-			do {
-				PackagePtr pack = ProtoHelp::decode(d->readBuffer_);
-				if (pack) {
-                    LOG(INFO) << "session onread:" << pack->header.msgId;
-					TaskManager::instance()->handleMessage(pack, self);
-				} else {
-					break;
-				}
-			} while (d->readBuffer_.readableBytes() > 0);
-
-			onRead();
-		} else {
-			LOG(INFO) << "Session::onRead error:" << ec.message() << "(" << ec << ")";
-		}
-	});
+    return d->socket_;
 }
 
-void Session::onWrite(BufferPtr writeBuffer)
+void Session::startRead()
 {
-	int writeLen = writeBuffer->readableBytes();
-	if (writeLen <= 0) {
-		return;
-	}
+	d->socket_.async_read_some(boost::asio::buffer(d->tempBuf_, kTempBufSize),
+        boost::bind(&Session::onRead, this, _1, _2));
+}
 
-	auto self(shared_from_this());
-	boost::asio::async_write(d->socket_, boost::asio::buffer(writeBuffer->peek(), writeLen),
-		[this, self, writeBuffer](boost::system::error_code ec, std::size_t length)
-	{
-		if (!ec) {
-			writeBuffer->retrieve(length);
-			onWrite(writeBuffer);
-		}
-	});
+void Session::onRead(boost::system::error_code ec, std::size_t length)
+{
+    if (!ec) {
+        d->readBuffer_.append(d->tempBuf_, length);
+        do {
+            PackagePtr pack = ProtoHelp::decode(d->readBuffer_);
+            if (pack) {
+                taskManager_.handleMessage(pack, shared_from_this());
+            } else {
+                break;
+            }
+        } while (d->readBuffer_.readableBytes() > 0);
+
+        startRead();
+    } else {
+        room_.leave(shared_from_this());
+        DLOG(INFO) << "Session::startRead error:" << ec.message() << "(" << ec << ")";
+    }
+}
+
+void Session::write(BufferPtr writeBuffer)
+{
+    bool writeInProgress = !d->writeDeque_.empty();
+    d->writeDeque_.push_back(writeBuffer);
+    if (!writeInProgress) {
+        const BufferPtr &buf = d->writeDeque_.front();
+        boost::asio::async_write(d->socket_, boost::asio::buffer(buf->peek(), buf->readableBytes()),
+            boost::bind(&Session::onWrite, this, _1, _2));
+    }
+}
+
+void Session::onWrite(boost::system::error_code ec, std::size_t length)
+{
+    if (!ec) {
+        d->writeDeque_.pop_front();
+        if (!d->writeDeque_.empty()) {
+            const BufferPtr &buf = d->writeDeque_.front();
+            boost::asio::async_write(d->socket_, boost::asio::buffer(buf->peek(), buf->readableBytes()),
+                boost::bind(&Session::onWrite, this, _1, _2));
+        }
+    } else {
+        room_.leave(shared_from_this());
+    }
 }
 
 void Session::postPackage(const PackagePtr &pack)
 {
     BufferPtr writeBuffer(new Buffer());
     if (ProtoHelp::encode(pack, writeBuffer)) {
-        d->io_.post([this, writeBuffer]{ onWrite(writeBuffer); });
+        d->io_.post(boost::bind(&Session::write, this, writeBuffer));
     }
 }
 
 //////////////////////////////////////////////////////////////////////////
-SessionManager* SessionManager::s_inst = nullptr;
-SessionManager* SessionManager::instance()
-{
-	static std::once_flag flag;
-	std::call_once(flag, []() {
-		s_inst = new SessionManager();
-	});
-	return s_inst;
-}
-
-void SessionManager::addSession(Session *session)
+void PublisherRoom::join(PublisherPtr publisher)
 {
 	std::lock_guard<std::mutex> lock(mutex_);
-	sessionList_.push_back(session);
+    publishers_.insert(publisher);
 }
 
-void SessionManager::removeSession(Session *session)
+void PublisherRoom::leave(PublisherPtr publisher)
 {
 	std::lock_guard<std::mutex> lock(mutex_);
-	auto it = std::find(sessionList_.begin(), sessionList_.end(), session);
-	if (it != sessionList_.end()) {
-		sessionList_.erase(it);
-	}
+    publishers_.erase(publisher);
 }
 
-void SessionManager::publishMessage(const MessagePtr &msg)
+void PublisherRoom::publishMessage(const MessagePtr &msg)
 {
 	std::lock_guard<std::mutex> lock(mutex_);
-	for (auto it = sessionList_.begin(); it != sessionList_.end(); ++it) {
+    for (std::set<PublisherPtr>::iterator it = publishers_.begin(); it != publishers_.end(); ++it) {
 		(*it)->publishMessage(msg);
 	}
 }

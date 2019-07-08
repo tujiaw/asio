@@ -3,14 +3,15 @@
   <ImportGroup Label="PropertySheets">
   </ImportGroup>
   <PropertyGroup Label="UserMacros">
-	<BOOSTDIR>$(SolutionDir)asio\third\boost\</BOOSTDIR>
-	<PROTOBUFDIR>$(SolutionDir)asio\third\protobuf\</PROTOBUFDIR>
-	<GLOGDIR>$(SolutionDir)asio\third\glog\</GLOGDIR>
-	<ZLIBDIR>$(SolutionDir)asio\third\zlib\</ZLIBDIR>
+	<BOOSTDIR_INC>C:\boost_1_67_0</BOOSTDIR_INC>
+	<BOOSTDIR_LIB>C:\boost_1_67_0\lib32-msvc-12.0</BOOSTDIR_LIB>
+	<PROTOBUFDIR>$(SolutionDir)3rd\protobuf\</PROTOBUFDIR>
+	<GLOGDIR>$(SolutionDir)3rd\glog\</GLOGDIR>
+	<ZLIBDIR>$(SolutionDir)3rd\zlib\</ZLIBDIR>
   </PropertyGroup>
   <PropertyGroup>
-    <IncludePath>$(WindowsSDK_IncludePath);$(VC_IncludePath);$(SolutionDir);$(BOOSTDIR)include;$(PROTOBUFDIR)include;$(GLOGDIR)include;$(ZLIBDIR)include</IncludePath>
-    <LibraryPath>$(WindowsSDK_LibraryPath_x86);$(VC_LibraryPath_x86);$(BOOSTDIR)lib;$(PROTOBUFDIR)lib;$(GLOGDIR)lib;$(ZLIBDIR)lib</LibraryPath>
+    <IncludePath>$(WindowsSDK_IncludePath);$(VC_IncludePath);$(SolutionDir);$(BOOSTDIR_INC);$(PROTOBUFDIR)include;$(GLOGDIR)include;$(ZLIBDIR)include</IncludePath>
+    <LibraryPath>$(WindowsSDK_LibraryPath_x86);$(VC_LibraryPath_x86);$(BOOSTDIR_LIB);$(PROTOBUFDIR)lib;$(GLOGDIR)lib;$(ZLIBDIR)lib</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
 	<Link>

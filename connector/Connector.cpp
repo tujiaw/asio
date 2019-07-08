@@ -7,7 +7,7 @@
 
 Connector::Connector(QWidget *parent)
 	: QDialog(parent), id_(100), timer_(new QTimer(this))
-	, conn_("127.0.0.1:5566", 5)
+    , conn_(std::vector<std::string>{"127.0.0.1:5566"}, 5)
 {
 	ui.setupUi(this);
 

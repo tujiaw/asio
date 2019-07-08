@@ -1,78 +1,49 @@
 #include "TaskManager.h"
-#include <mutex>
-#include <boost/asio/io_context.hpp>
-#include "runnable.h"
-#include "threadpool.h"
-#include "session.h"
-
-class TaskRunnable : public Runnable
-{
-public:
-	TaskRunnable(const SessionPtr &sessionPtr, const PackagePtr &pacPtr, const Task &task)
-		: sessionPtr_(sessionPtr), pacPtr_(pacPtr), task_(task)
-	{}
-
-	void run()
-	{
-		if (task_) {
-			task_(sessionPtr_, pacPtr_);
-		}
-	}
-
-private:
-	SessionPtr sessionPtr_;
-	PackagePtr pacPtr_;
-	Task task_;
-};
-
-typedef std::pair<boost::asio::io_context*, boost::asio::io_context::work*> WorkContext;
+#include <map>
+#include <boost/asio/io_service.hpp>
+#include <boost/bind.hpp>
+#include <boost/thread.hpp>
+#include "Session.h"
+#include "ThreadPool.h"
 
 class Worker {
 public:
-	Worker() : work(io) {
-		thread = std::move(std::thread([this]() {
-			io.run();
-		}));
-	}
-	~Worker() {
-		io.stop();
-	}
-
-	std::thread thread;
-	boost::asio::io_context io;
-	boost::asio::io_context::work work;
+    Worker() : work(io), t(boost::bind(&boost::asio::io_service::run, &io)) {}
+    ~Worker() { io.stop(); }
+    boost::asio::io_service io;
+    boost::asio::io_service::work work;
+    boost::thread t;
 };
-typedef std::shared_ptr<Worker> WorkerPtr;
 
-class TaskManagerPrivate {
-public:
-    TaskManagerPrivate() : 
-        workThreadCount_(std::max(std::thread::hardware_concurrency() * 2, 1u)),
-        pool_(new ThreadPool(workThreadCount_))
-    {
-        for (int i = 0; i < workThreadCount_; i++) {
-			workers_.push_back(std::make_shared<Worker>());
-        }
+TaskManager::TaskManagerPrivate::TaskManagerPrivate()
+{
+    int count = std::max(boost::thread::hardware_concurrency(), 1u);
+    init(count, count);
+}
+
+TaskManager::TaskManagerPrivate::TaskManagerPrivate(unsigned int workSize, unsigned int poolSize)
+{
+    init(std::max(workSize, 1u), std::max(poolSize, 1u));
+}
+
+void TaskManager::TaskManagerPrivate::init(unsigned int workSize, unsigned int poolSize)
+{
+    for (int i = 0; i < workSize; i++) {
+        workers_.push_back(std::make_shared<Worker>());
+        printf("create work id:0x%x\n", workers_[i]->t.get_id());
     }
 
-    int workThreadCount_;
-	std::unique_ptr<ThreadPool> pool_;
-	std::map<std::string, Task> handler_;
-	std::vector<WorkerPtr> workers_;
-};
-
-TaskManager* TaskManager::s_inst = nullptr;
-TaskManager* TaskManager::instance()
-{
-	static std::once_flag instanceFlag;
-	std::call_once(instanceFlag, []() {
-		s_inst = new TaskManager();
-	});
-	return s_inst;
+    pool_.reset(new ThreadPool(poolSize));
+    pool_->start();
 }
 
 TaskManager::TaskManager()
     : d_ptr(new TaskManagerPrivate())
+{
+}
+
+TaskManager::TaskManager(unsigned int workSize, unsigned int poolSize)
+    : d_ptr(new TaskManagerPrivate(workSize, poolSize))
 {
 }
 
@@ -83,19 +54,15 @@ void TaskManager::addHandleTask(const std::string &protoName, const Task &task)
 
 void TaskManager::handleMessage(const PackagePtr &pacPtr, const SessionPtr &sessionPtr)
 {
-	std::string name = std::move(pacPtr->typeName);
-    auto iter = d_func()->handler_.find(name);
+	std::string name = boost::move(pacPtr->typeName);
+    std::map<std::string, Task>::iterator iter = d_func()->handler_.find(name);
     if (iter != d_func()->handler_.end()) {
         const Task &task = iter->second;
         if (pacPtr->header.isorder) {
-			int workId = sessionPtr->sessionId() % d_func()->workThreadCount_;
-            d_func()->workers_[workId]->io.post([=]() {
-                task(sessionPtr, pacPtr);
-			});
+			int workId = sessionPtr->sessionId() % d_func()->workers_.size();
+            d_func()->workers_[workId]->io.post(boost::bind(&TaskManager::handleTask, this, task, pacPtr, sessionPtr));
         } else {
-            d_func()->pool_->run([=]() {
-                task(sessionPtr, pacPtr);
-            });
+            d_func()->pool_->run(boost::bind(&TaskManager::handleTask, this, task, pacPtr, sessionPtr));
         }
 	} else {
 		std::cout << "message discard:" << name;
@@ -105,4 +72,9 @@ void TaskManager::handleMessage(const PackagePtr &pacPtr, const SessionPtr &sess
 void TaskManager::destory()
 {
     d_func()->pool_->stop();
+}
+
+void TaskManager::handleTask(const Task &task, const PackagePtr &pacPtr, const SessionPtr &sessionPtr)
+{
+    task(sessionPtr, pacPtr);
 }

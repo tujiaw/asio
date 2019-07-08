@@ -1,9 +1,8 @@
 #include "asio/msgclient.h"
 #include "asio/base/AsioClient.h"
 
-MsgClient::MsgClient(const std::string &address, int heartbeatSeconds)
-    : d_ptr(new AsioClient(address, heartbeatSeconds))
-    , address_(address) {}
+MsgClient::MsgClient(const std::vector<std::string> &addressList, int heartbeatSeconds)
+    : d_ptr(new AsioClient(addressList, heartbeatSeconds)){}
 
 MsgClient::~MsgClient() { }
 
@@ -16,9 +15,6 @@ void MsgClient::addHandlePublish(const std::string &typeName, const PublishFunc 
 }
 
 void MsgClient::start() {
-    if (d_func()->stopped()) {
-        d_ptr.reset(new AsioClient(address_));
-    }
     d_func()->start();
 }
 
