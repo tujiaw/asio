@@ -55,10 +55,8 @@ private:
     void onTimeout(boost::system::error_code err, int msgId);
 	void doClose();
 	void startSubscribe();
-    void doSubscribe(int error, const PackagePtr &reqMsgPtr, const PackagePtr &rspMsgPtr);
     void startHeartbeatTimer();
-    void startHeartbeat(const boost::system::error_code &e);
-    void doHeartbeat(int error, const PackagePtr &reqMsgPtr, const PackagePtr &rspMsgPtr);
+    void doHeartbeat(const boost::system::error_code &e);
     void doResponse(const PackagePtr &pack);
 
 private:

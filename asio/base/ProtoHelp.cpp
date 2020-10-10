@@ -118,7 +118,7 @@ PackagePtr ProtoHelp::decode(Buffer &buf)
     }
 
     std::string typeName = buf.retrieveAsString(header.typeNameLen);
-    google::protobuf::Message *msg = createMessage(typeName);;
+    google::protobuf::Message *msg = createMessage(typeName);
     if (!msg) {
         DLOG(ERROR) << "create message failed:" << typeName;
         return decode(buf);

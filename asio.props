@@ -3,8 +3,8 @@
   <ImportGroup Label="PropertySheets">
   </ImportGroup>
   <PropertyGroup Label="UserMacros">
-	<BOOSTDIR_INC>C:\boost_1_67_0</BOOSTDIR_INC>
-	<BOOSTDIR_LIB>C:\boost_1_67_0\lib32-msvc-12.0</BOOSTDIR_LIB>
+	<BOOSTDIR_INC>C:\boost_1_55_0</BOOSTDIR_INC>
+	<BOOSTDIR_LIB>C:\boost_1_55_0\lib32-msvc-12.0</BOOSTDIR_LIB>
 	<PROTOBUFDIR>$(SolutionDir)3rd\protobuf\</PROTOBUFDIR>
 	<GLOGDIR>$(SolutionDir)3rd\glog\</GLOGDIR>
 	<ZLIBDIR>$(SolutionDir)3rd\zlib\</ZLIBDIR>
@@ -15,7 +15,7 @@
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
 	<Link>
-	  <AdditionalDependencies>shell32.lib;libboost_system-vc120-mt-gd-x32-1_67.lib;libboost_date_time-vc120-mt-gd-x32-1_67.lib;libboost_regex-vc120-mt-gd-x32-1_67.lib;libprotobufd.lib;glogd.lib;zlibstatic.lib</AdditionalDependencies>
+	  <AdditionalDependencies>shell32.lib;libboost_system-vc120-mt-gd-1_55.lib;libboost_date_time-vc120-mt-gd-1_55.lib;libboost_regex-vc120-mt-gd-1_55.lib;libprotobufd.lib;glogd.lib;zlibstatic.lib</AdditionalDependencies>
 	</Link>
 	<ClCompile>
       <PreprocessorDefinitions>PROTOBUF_USE_DLLS</PreprocessorDefinitions>
@@ -23,7 +23,7 @@
   </ItemDefinitionGroup>
    <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
    	<Link>
-	  <AdditionalDependencies>shell32.lib;libboost_system-vc120-mt-x32-1_67.lib;libboost_date_time-vc120-mt-x32-1_67.lib;libboost_regex-vc120-mt-x32-1_67.lib;libprotobuf.lib;glog.lib;zlibstatic.lib</AdditionalDependencies>
+	  <AdditionalDependencies>shell32.lib;libboost_system-vc120-mt-1_55.lib;libboost_date_time-vc120-mt-1_55.lib;libboost_regex-vc120-mt-1_55.lib;libprotobuf.lib;glog.lib;zlibstatic.lib</AdditionalDependencies>
 	</Link>
 	<ClCompile>
       <PreprocessorDefinitions>PROTOBUF_USE_DLLS</PreprocessorDefinitions>

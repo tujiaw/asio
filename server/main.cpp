@@ -9,7 +9,7 @@
 int main(int argc, char* argv[])
 {
 	util::initlog(argv[0], true);
-
+	
 #if 1
 	LOG(INFO) << "server start...";
 	MsgServer server(5566);
@@ -37,7 +37,8 @@ int main(int argc, char* argv[])
 	server.run();
 #else
 	LOG(INFO) << "client start...";
-	MsgClient client("127.0.0.1:5566");
+	std::vector<std::string> addressList{ "127.0.0.1:5566" };
+	MsgClient client(addressList);
 	client.addHandlePublish(PbBase::ServerInfoPub::default_instance().GetTypeName(), [](int error, const MessagePtr &msg) {
 		PbBase::ServerInfoPub *pub = static_cast<PbBase::ServerInfoPub*>(msg.get());
 		LOG(INFO) << "publish:" << pub->hello();

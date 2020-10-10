@@ -68,7 +68,6 @@ void AsioClient::close()
 
 int AsioClient::sendMessage(const MessagePtr &msgPtr, MessagePtr &rspPtr, int msTimeout)
 {
-#if 0 // c++11
 	bool isWait = true;
 	int err = postMessage(msgPtr, [&](int error, const PackagePtr &reqMsgPtr, const PackagePtr &rspMsgPtr) {
         if (!error) {
@@ -89,9 +88,6 @@ int AsioClient::sendMessage(const MessagePtr &msgPtr, MessagePtr &rspPtr, int ms
         cond_.wait(lock);
 	}
 	return err;
-#else
-    return -1;
-#endif
 }
 
 void AsioClient::connect()
@@ -280,32 +276,31 @@ void AsioClient::startSubscribe()
 		msg->add_typenamelist(it->first);
 	}
 	msg->set_type(1);
-	postMessage(MessagePtr(msg), boost::bind(&AsioClient::doSubscribe, this, _1, _2, _3));
-}
-
-void AsioClient::doSubscribe(int error, const PackagePtr &reqMsgPtr, const PackagePtr &rspMsgPtr)
-{
-    if (error == 0) {
-        PbBase::SubscribeRsp *p = static_cast<PbBase::SubscribeRsp*>(rspMsgPtr->msgPtr.get());
-        if (p->errorcode() == 0) {
-            DLOG(INFO) << "subscribe success...";
-        } else {
-            DLOG(ERROR) << "subscribe failed, response error:" << p->errorcode();
-        }
-    } else {
-        DLOG(ERROR) << "subscribe failed, error:" << error;
-    }
+	postMessage(MessagePtr(msg), [](int error, const PackagePtr &reqMsgPtr, const PackagePtr &rspMsgPtr) {
+		if (error == 0) {
+			PbBase::SubscribeRsp *p = static_cast<PbBase::SubscribeRsp*>(rspMsgPtr->msgPtr.get());
+			if (p->errorcode() == 0) {
+				LOG(INFO) << "subscribe success...";
+			}
+			else {
+				LOG(ERROR) << "subscribe failed, response error:" << p->errorcode();
+			}
+		}
+		else {
+			LOG(ERROR) << "subscribe failed, error:" << error;
+		}
+	});
 }
 
 void AsioClient::startHeartbeatTimer()
 {
 	if (heartbeatSeconds_ > 0) {
 		heartbeatTimer_.reset(new boost::asio::deadline_timer(io_, boost::posix_time::seconds(heartbeatSeconds_)));
-		heartbeatTimer_->async_wait(std::bind(&AsioClient::startHeartbeat, this, std::placeholders::_1));
+		heartbeatTimer_->async_wait(std::bind(&AsioClient::doHeartbeat, this, std::placeholders::_1));
 	}
 }
 
-void AsioClient::startHeartbeat(const boost::system::error_code &e)
+void AsioClient::doHeartbeat(const boost::system::error_code &e)
 {
 	if (e) {
         DLOG(ERROR) << "doHeartbeat error:" << e.message();
@@ -315,17 +310,14 @@ void AsioClient::startHeartbeat(const boost::system::error_code &e)
 	PbBase::HeartbeatReq *msg(new PbBase::HeartbeatReq());
 	msg->set_cpu(0);
 	msg->set_memory(0);
-	postMessage(MessagePtr(msg), boost::bind(&AsioClient::doHeartbeat, this, _1, _2, _3));
-}
-
-void AsioClient::doHeartbeat(int error, const PackagePtr &reqMsgPtr, const PackagePtr &rspMsgPtr)
-{
-    if (error == 0) {
-        PbBase::HeartbeatRsp *rsp = static_cast<PbBase::HeartbeatRsp*>(rspMsgPtr->msgPtr.get());
-        DLOG(INFO) << "heartbeat " << rsp->servertime();
-    }
-    heartbeatTimer_->expires_at(heartbeatTimer_->expires_at() + boost::posix_time::seconds(heartbeatSeconds_));
-    heartbeatTimer_->async_wait(std::bind(&AsioClient::startHeartbeat, this, std::placeholders::_1));
+	postMessage(MessagePtr(msg), [&](int error, const PackagePtr &reqMsgPtr, const PackagePtr &rspMsgPtr) {
+		if (error == 0) {
+			PbBase::HeartbeatRsp *rsp = static_cast<PbBase::HeartbeatRsp*>(rspMsgPtr->msgPtr.get());
+			DLOG(INFO) << "heartbeat " << rsp->servertime();
+		}
+		heartbeatTimer_->expires_at(heartbeatTimer_->expires_at() + boost::posix_time::seconds(heartbeatSeconds_));
+		heartbeatTimer_->async_wait(std::bind(&AsioClient::doHeartbeat, this, std::placeholders::_1));
+	});
 }
 
 void AsioClient::doResponse(const PackagePtr &pack)
