@@ -1,0 +1,50 @@
+#!/bin/sh
+
+set -x
+
+ulimit -c unlimited
+
+
+SOURCE=`pwd`
+
+
+function start_server()
+{
+	SERVER_NAME=$1
+	APP_PATH=$SOURCE/$SERVER_NAME
+	export LD_LIBRARY_PATH=$SOURCE/../lib:$LD_LIBRARY_PATH
+	process=`ps -ef | grep -w $APP_PATH | grep -v grep | awk '{print $2}'`;
+    	if [ "$process" == "" ]; then
+		nohup $APP_PATH >> nohup.out &
+	else
+		echo "already running, path: $APP_PATH"
+	fi
+}
+
+
+function stop_server()
+{
+	SERVER_NAME=$1
+	APP_PATH=$SOURCE/$SERVER_NAME
+	process=`ps -ef | grep -w $APP_PATH | grep -v grep | awk '{print $2}'`;
+	if [ "$process" != "" ]; then
+		kill -9 $process
+	else
+		echo "is not running..."
+	fi
+}
+
+case "$2" in
+    start)
+        start_server $1
+        ;;
+    stop)
+        stop_server $1
+        ;;
+    clear)
+        ;;
+    *)
+        echo $"Usage: $0 process {start|stop|clear}"
+        ;;
+esac
+
