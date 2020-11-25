@@ -1,0 +1,51 @@
+syntax = "proto3";
+package ProtoSimple;
+
+message PingPongReq
+{
+	string content = 1;
+}
+
+message PingPongRsp
+{
+	string content = 1;
+}
+
+message DaytimeReq
+{
+}
+
+message DaytimeRsp
+{
+	string time = 1;
+}
+
+message DiscardReq
+{
+	string content = 1;
+}
+
+message DiscardRsp
+{
+	int32 size = 1;
+	int32 total = 2;
+}
+
+message ServerInfoPub
+{
+  string hello = 1;
+}
+
+message ServerInfoReq
+{
+}
+
+
+message ServerInfoRsp
+{
+	string time = 1;
+	int32 coreCount = 2;
+	string memorySize = 3;
+	string diskSize = 4;
+}
+

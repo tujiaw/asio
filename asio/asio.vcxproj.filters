@@ -5,76 +5,105 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
-    <Filter Include="base">
-      <UniqueIdentifier>{513ba59c-4da6-431e-b24e-1a0f3ad9b5c3}</UniqueIdentifier>
-    </Filter>
     <Filter Include="proto">
       <UniqueIdentifier>{e38a260a-c8fe-4201-85ea-73ef0b2abadf}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="tool">
+      <UniqueIdentifier>{d6dafde2-5800-4e5f-9cb1-a132c6317f47}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="internal">
+      <UniqueIdentifier>{513ba59c-4da6-431e-b24e-1a0f3ad9b5c3}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
     <Text Include="ReadMe.txt" />
+    <Text Include="CMakeLists.txt" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="base\util.cpp">
-      <Filter>base</Filter>
-    </ClCompile>
     <ClCompile Include="proto\pb_base.pb.cc">
       <Filter>proto</Filter>
     </ClCompile>
     <ClCompile Include="msgserver.cpp" />
     <ClCompile Include="msgclient.cpp" />
-    <ClCompile Include="base\AsioClient.cpp">
-      <Filter>base</Filter>
+    <ClCompile Include="tool\strutil.cpp">
+      <Filter>tool</Filter>
     </ClCompile>
-    <ClCompile Include="base\AsioServer.cpp">
-      <Filter>base</Filter>
+    <ClCompile Include="tool\util.cpp">
+      <Filter>tool</Filter>
     </ClCompile>
-    <ClCompile Include="base\Buffer.cpp">
-      <Filter>base</Filter>
+    <ClCompile Include="internal\AsioClient.cpp">
+      <Filter>internal</Filter>
     </ClCompile>
-    <ClCompile Include="base\ProtoHelp.cpp">
-      <Filter>base</Filter>
+    <ClCompile Include="internal\AsioServer.cpp">
+      <Filter>internal</Filter>
     </ClCompile>
-    <ClCompile Include="base\Session.cpp">
-      <Filter>base</Filter>
+    <ClCompile Include="internal\Buffer.cpp">
+      <Filter>internal</Filter>
     </ClCompile>
-    <ClCompile Include="base\TaskManager.cpp">
-      <Filter>base</Filter>
+    <ClCompile Include="internal\ProtoHelp.cpp">
+      <Filter>internal</Filter>
+    </ClCompile>
+    <ClCompile Include="internal\Session.cpp">
+      <Filter>internal</Filter>
+    </ClCompile>
+    <ClCompile Include="internal\TaskManager.cpp">
+      <Filter>internal</Filter>
+    </ClCompile>
+    <ClCompile Include="msgbus.cpp" />
+    <ClCompile Include="proto\pb_simple.pb.cc">
+      <Filter>proto</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="base\util.h">
-      <Filter>base</Filter>
-    </ClInclude>
     <ClInclude Include="proto\pb_base.pb.h">
       <Filter>proto</Filter>
     </ClInclude>
     <ClInclude Include="msgclient.h" />
     <ClInclude Include="msgserver.h" />
-    <ClInclude Include="base\AsioClient.h">
-      <Filter>base</Filter>
+    <ClInclude Include="tool\process_memory.h">
+      <Filter>tool</Filter>
     </ClInclude>
-    <ClInclude Include="base\AsioServer.h">
-      <Filter>base</Filter>
+    <ClInclude Include="tool\strutil.h">
+      <Filter>tool</Filter>
     </ClInclude>
-    <ClInclude Include="base\Buffer.h">
-      <Filter>base</Filter>
+    <ClInclude Include="tool\util.h">
+      <Filter>tool</Filter>
     </ClInclude>
-    <ClInclude Include="base\Package.h">
-      <Filter>base</Filter>
+    <ClInclude Include="internal\AsioClient.h">
+      <Filter>internal</Filter>
     </ClInclude>
-    <ClInclude Include="base\ProtoHelp.h">
-      <Filter>base</Filter>
+    <ClInclude Include="internal\AsioServer.h">
+      <Filter>internal</Filter>
     </ClInclude>
-    <ClInclude Include="base\Session.h">
-      <Filter>base</Filter>
+    <ClInclude Include="internal\Buffer.h">
+      <Filter>internal</Filter>
     </ClInclude>
-    <ClInclude Include="base\TaskManager.h">
-      <Filter>base</Filter>
+    <ClInclude Include="internal\Package.h">
+      <Filter>internal</Filter>
     </ClInclude>
-    <ClInclude Include="base\ThreadPool.h">
-      <Filter>base</Filter>
+    <ClInclude Include="internal\ProtoHelp.h">
+      <Filter>internal</Filter>
     </ClInclude>
+    <ClInclude Include="internal\Session.h">
+      <Filter>internal</Filter>
+    </ClInclude>
+    <ClInclude Include="internal\TaskManager.h">
+      <Filter>internal</Filter>
+    </ClInclude>
+    <ClInclude Include="internal\ThreadPool.h">
+      <Filter>internal</Filter>
+    </ClInclude>
+    <ClInclude Include="msgbus.h" />
+    <ClInclude Include="proto\pb_simple.pb.h">
+      <Filter>proto</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="proto\pb_base.proto">
+      <Filter>proto</Filter>
+    </None>
+    <None Include="proto\pb_simple.proto">
+      <Filter>proto</Filter>
+    </None>
   </ItemGroup>
 </Project>

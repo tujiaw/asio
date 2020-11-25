@@ -1,25 +1,29 @@
-#ifndef ASIO_MSGCLIENT_H_
-#define ASIO_MSGCLIENT_H_
+#pragma once
 
-#include "base/Package.h"
+#include "internal/Package.h"
+#include "internal/AsioClient.h"
 
-class MsgClient {
-public:
-    explicit MsgClient(const std::vector<std::string> &addressList, int heartbeatSeconds = 0);
-    ~MsgClient();
-    MsgClient(const MsgClient&) = delete;
-    MsgClient& operator=(const MsgClient&) = delete;
+namespace ningto
+{
+    class PublishHandler;
+    class MsgClient {
+    public:
+        explicit MsgClient(const std::vector<std::string> &addressList, int heartbeatSeconds = 5);
+        ~MsgClient();
+        MsgClient(const MsgClient&) = delete;
+        MsgClient& operator=(const MsgClient&) = delete;
 
-    void addHandlePublish(const std::string &typeName, const PublishFunc &func);
-    void start();
-    void stop();
+        void addHandlePublish(const std::string &typeName, const PublishFunc &func);
+        void start();
+        void stop();
+        bool waitConnected(int timeoutSecond = 3);
 
-    int sendMessage(const MessagePtr &msgPtr, MessagePtr &rspPtr, int msTimeout = kMsTimeout);
-    int postMessage(const MessagePtr &msgPtr, const Response &res, int msTimeout = kMsTimeout);
-	int postOrderMessage(const MessagePtr &msgPtr, const Response &res, int msTimeout = kMsTimeout);
+        int sendMessage(const MessagePtr &msgPtr, MessagePtr &rspPtr, int msTimeout = kMsTimeout);
+        int postMessage(const MessagePtr &msgPtr, const Response &res, int msTimeout = kMsTimeout);
+        int postOrderMessage(const MessagePtr &msgPtr, const Response &res, int msTimeout = kMsTimeout);
 
-private:
-    D_PRIVATE(AsioClient);
-};
-
-#endif  // ASIO_MSGCLIENT_H_
+    private:
+        std::shared_ptr<PublishHandler> publishHandler_;
+        D_PRIVATE(AsioClient);
+    };
+}

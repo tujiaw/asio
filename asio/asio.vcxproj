@@ -14,13 +14,13 @@
     <ProjectGuid>{2BBC3825-C9D0-4885-9DD2-6EA6D5E9A889}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>asio</RootNamespace>
-    <WindowsTargetPlatformVersion>10.0.19041.0</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>10.0.17763.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v120</PlatformToolset>
+    <PlatformToolset>v141</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
@@ -56,11 +56,12 @@
       </PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_LIB;BOOST_CONFIG_SUPPRESS_OUTDATED_MESSAGE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>false</SDLCheck>
-      <AdditionalIncludeDirectories>.;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <DisableSpecificWarnings>4251</DisableSpecificWarnings>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -75,9 +76,11 @@
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;BOOST_CONFIG_SUPPRESS_OUTDATED_MESSAGE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>false</SDLCheck>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <AdditionalIncludeDirectories>$(ProjectDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <DisableSpecificWarnings>4251</DisableSpecificWarnings>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -87,33 +90,45 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <Text Include="CMakeLists.txt" />
     <Text Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="base\AsioClient.cpp" />
-    <ClCompile Include="base\AsioServer.cpp" />
-    <ClCompile Include="base\Buffer.cpp" />
-    <ClCompile Include="base\ProtoHelp.cpp" />
-    <ClCompile Include="base\Session.cpp" />
-    <ClCompile Include="base\TaskManager.cpp" />
-    <ClCompile Include="base\util.cpp" />
+    <ClCompile Include="internal\AsioClient.cpp" />
+    <ClCompile Include="internal\AsioServer.cpp" />
+    <ClCompile Include="internal\Buffer.cpp" />
+    <ClCompile Include="internal\ProtoHelp.cpp" />
+    <ClCompile Include="internal\Session.cpp" />
+    <ClCompile Include="internal\TaskManager.cpp" />
+    <ClCompile Include="msgbus.cpp" />
     <ClCompile Include="msgclient.cpp" />
     <ClCompile Include="msgserver.cpp" />
     <ClCompile Include="proto\pb_base.pb.cc" />
+    <ClCompile Include="proto\pb_simple.pb.cc" />
+    <ClCompile Include="tool\strutil.cpp" />
+    <ClCompile Include="tool\util.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="base\AsioClient.h" />
-    <ClInclude Include="base\AsioServer.h" />
-    <ClInclude Include="base\Buffer.h" />
-    <ClInclude Include="base\Package.h" />
-    <ClInclude Include="base\ProtoHelp.h" />
-    <ClInclude Include="base\Session.h" />
-    <ClInclude Include="base\TaskManager.h" />
-    <ClInclude Include="base\ThreadPool.h" />
-    <ClInclude Include="base\util.h" />
+    <ClInclude Include="internal\AsioClient.h" />
+    <ClInclude Include="internal\AsioServer.h" />
+    <ClInclude Include="internal\Buffer.h" />
+    <ClInclude Include="internal\Package.h" />
+    <ClInclude Include="internal\ProtoHelp.h" />
+    <ClInclude Include="internal\Session.h" />
+    <ClInclude Include="internal\TaskManager.h" />
+    <ClInclude Include="internal\ThreadPool.h" />
+    <ClInclude Include="msgbus.h" />
     <ClInclude Include="msgclient.h" />
     <ClInclude Include="msgserver.h" />
     <ClInclude Include="proto\pb_base.pb.h" />
+    <ClInclude Include="proto\pb_simple.pb.h" />
+    <ClInclude Include="tool\process_memory.h" />
+    <ClInclude Include="tool\strutil.h" />
+    <ClInclude Include="tool\util.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="proto\pb_base.proto" />
+    <None Include="proto\pb_simple.proto" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

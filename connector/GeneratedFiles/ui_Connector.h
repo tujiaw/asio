@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'Connector.ui'
 **
-** Created by: Qt User Interface Compiler version 5.3.2
+** Created by: Qt User Interface Compiler version 5.12.9
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
 ********************************************************************************/
@@ -10,12 +10,9 @@
 #define UI_CONNECTOR_H
 
 #include <QtCore/QVariant>
-#include <QtWidgets/QAction>
 #include <QtWidgets/QApplication>
-#include <QtWidgets/QButtonGroup>
 #include <QtWidgets/QDialog>
 #include <QtWidgets/QHBoxLayout>
-#include <QtWidgets/QHeaderView>
 #include <QtWidgets/QLabel>
 #include <QtWidgets/QLineEdit>
 #include <QtWidgets/QListWidget>
@@ -55,32 +52,32 @@ public:
     void setupUi(QDialog *ConnectorClass)
     {
         if (ConnectorClass->objectName().isEmpty())
-            ConnectorClass->setObjectName(QStringLiteral("ConnectorClass"));
+            ConnectorClass->setObjectName(QString::fromUtf8("ConnectorClass"));
         ConnectorClass->resize(595, 407);
         verticalLayout = new QVBoxLayout(ConnectorClass);
         verticalLayout->setSpacing(6);
         verticalLayout->setContentsMargins(11, 11, 11, 11);
-        verticalLayout->setObjectName(QStringLiteral("verticalLayout"));
+        verticalLayout->setObjectName(QString::fromUtf8("verticalLayout"));
         horizontalLayout = new QHBoxLayout();
         horizontalLayout->setSpacing(6);
-        horizontalLayout->setObjectName(QStringLiteral("horizontalLayout"));
+        horizontalLayout->setObjectName(QString::fromUtf8("horizontalLayout"));
         label = new QLabel(ConnectorClass);
-        label->setObjectName(QStringLiteral("label"));
+        label->setObjectName(QString::fromUtf8("label"));
 
         horizontalLayout->addWidget(label);
 
         leAddress = new QLineEdit(ConnectorClass);
-        leAddress->setObjectName(QStringLiteral("leAddress"));
+        leAddress->setObjectName(QString::fromUtf8("leAddress"));
 
         horizontalLayout->addWidget(leAddress);
 
         pbConnect = new QPushButton(ConnectorClass);
-        pbConnect->setObjectName(QStringLiteral("pbConnect"));
+        pbConnect->setObjectName(QString::fromUtf8("pbConnect"));
 
         horizontalLayout->addWidget(pbConnect);
 
         pbDisconnect = new QPushButton(ConnectorClass);
-        pbDisconnect->setObjectName(QStringLiteral("pbDisconnect"));
+        pbDisconnect->setObjectName(QString::fromUtf8("pbDisconnect"));
 
         horizontalLayout->addWidget(pbDisconnect);
 
@@ -89,30 +86,30 @@ public:
 
         horizontalLayout_2 = new QHBoxLayout();
         horizontalLayout_2->setSpacing(6);
-        horizontalLayout_2->setObjectName(QStringLiteral("horizontalLayout_2"));
+        horizontalLayout_2->setObjectName(QString::fromUtf8("horizontalLayout_2"));
         label_2 = new QLabel(ConnectorClass);
-        label_2->setObjectName(QStringLiteral("label_2"));
+        label_2->setObjectName(QString::fromUtf8("label_2"));
 
         horizontalLayout_2->addWidget(label_2);
 
         leIntervalMillisecond = new QLineEdit(ConnectorClass);
-        leIntervalMillisecond->setObjectName(QStringLiteral("leIntervalMillisecond"));
+        leIntervalMillisecond->setObjectName(QString::fromUtf8("leIntervalMillisecond"));
         leIntervalMillisecond->setMaximumSize(QSize(50, 16777215));
 
         horizontalLayout_2->addWidget(leIntervalMillisecond);
 
         pbStart = new QPushButton(ConnectorClass);
-        pbStart->setObjectName(QStringLiteral("pbStart"));
+        pbStart->setObjectName(QString::fromUtf8("pbStart"));
 
         horizontalLayout_2->addWidget(pbStart);
 
         pbStop = new QPushButton(ConnectorClass);
-        pbStop->setObjectName(QStringLiteral("pbStop"));
+        pbStop->setObjectName(QString::fromUtf8("pbStop"));
 
         horizontalLayout_2->addWidget(pbStop);
 
         pbHello = new QPushButton(ConnectorClass);
-        pbHello->setObjectName(QStringLiteral("pbHello"));
+        pbHello->setObjectName(QString::fromUtf8("pbHello"));
 
         horizontalLayout_2->addWidget(pbHello);
 
@@ -124,20 +121,20 @@ public:
         verticalLayout->addLayout(horizontalLayout_2);
 
         teSendData = new QTextEdit(ConnectorClass);
-        teSendData->setObjectName(QStringLiteral("teSendData"));
+        teSendData->setObjectName(QString::fromUtf8("teSendData"));
 
         verticalLayout->addWidget(teSendData);
 
         horizontalLayout_3 = new QHBoxLayout();
         horizontalLayout_3->setSpacing(6);
-        horizontalLayout_3->setObjectName(QStringLiteral("horizontalLayout_3"));
+        horizontalLayout_3->setObjectName(QString::fromUtf8("horizontalLayout_3"));
         label_3 = new QLabel(ConnectorClass);
-        label_3->setObjectName(QStringLiteral("label_3"));
+        label_3->setObjectName(QString::fromUtf8("label_3"));
 
         horizontalLayout_3->addWidget(label_3);
 
         pbClear = new QPushButton(ConnectorClass);
-        pbClear->setObjectName(QStringLiteral("pbClear"));
+        pbClear->setObjectName(QString::fromUtf8("pbClear"));
 
         horizontalLayout_3->addWidget(pbClear);
 
@@ -150,14 +147,14 @@ public:
 
         horizontalLayout_4 = new QHBoxLayout();
         horizontalLayout_4->setSpacing(6);
-        horizontalLayout_4->setObjectName(QStringLiteral("horizontalLayout_4"));
+        horizontalLayout_4->setObjectName(QString::fromUtf8("horizontalLayout_4"));
         lwSendData = new QListWidget(ConnectorClass);
-        lwSendData->setObjectName(QStringLiteral("lwSendData"));
+        lwSendData->setObjectName(QString::fromUtf8("lwSendData"));
 
         horizontalLayout_4->addWidget(lwSendData);
 
         lwRecvData = new QListWidget(ConnectorClass);
-        lwRecvData->setObjectName(QStringLiteral("lwRecvData"));
+        lwRecvData->setObjectName(QString::fromUtf8("lwRecvData"));
 
         horizontalLayout_4->addWidget(lwRecvData);
 
@@ -165,7 +162,7 @@ public:
         verticalLayout->addLayout(horizontalLayout_4);
 
         labelStatus = new QLabel(ConnectorClass);
-        labelStatus->setObjectName(QStringLiteral("labelStatus"));
+        labelStatus->setObjectName(QString::fromUtf8("labelStatus"));
 
         verticalLayout->addWidget(labelStatus);
 
@@ -177,17 +174,17 @@ public:
 
     void retranslateUi(QDialog *ConnectorClass)
     {
-        ConnectorClass->setWindowTitle(QApplication::translate("ConnectorClass", "Connector", 0));
-        label->setText(QApplication::translate("ConnectorClass", "Address:", 0));
-        pbConnect->setText(QApplication::translate("ConnectorClass", "Connect", 0));
-        pbDisconnect->setText(QApplication::translate("ConnectorClass", "Disconnect", 0));
-        label_2->setText(QApplication::translate("ConnectorClass", "Send data:", 0));
-        leIntervalMillisecond->setText(QApplication::translate("ConnectorClass", "1000", 0));
-        pbStart->setText(QApplication::translate("ConnectorClass", "Start", 0));
-        pbStop->setText(QApplication::translate("ConnectorClass", "Stop", 0));
-        pbHello->setText(QApplication::translate("ConnectorClass", "Hello", 0));
-        label_3->setText(QApplication::translate("ConnectorClass", "Recieve data", 0));
-        pbClear->setText(QApplication::translate("ConnectorClass", "Clear", 0));
+        ConnectorClass->setWindowTitle(QApplication::translate("ConnectorClass", "Connector", nullptr));
+        label->setText(QApplication::translate("ConnectorClass", "Address:", nullptr));
+        pbConnect->setText(QApplication::translate("ConnectorClass", "Connect", nullptr));
+        pbDisconnect->setText(QApplication::translate("ConnectorClass", "Disconnect", nullptr));
+        label_2->setText(QApplication::translate("ConnectorClass", "Send data:", nullptr));
+        leIntervalMillisecond->setText(QApplication::translate("ConnectorClass", "1000", nullptr));
+        pbStart->setText(QApplication::translate("ConnectorClass", "Start", nullptr));
+        pbStop->setText(QApplication::translate("ConnectorClass", "Stop", nullptr));
+        pbHello->setText(QApplication::translate("ConnectorClass", "Hello", nullptr));
+        label_3->setText(QApplication::translate("ConnectorClass", "Recieve data", nullptr));
+        pbClear->setText(QApplication::translate("ConnectorClass", "Clear", nullptr));
         labelStatus->setText(QString());
     } // retranslateUi
 

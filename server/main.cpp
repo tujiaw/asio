@@ -1,64 +1,56 @@
-
 #include <iostream>
-#include "asio/proto/pb_base.pb.h"
+#include "asio/proto/pb_simple.pb.h"
 #include "asio/msgclient.h"
 #include "asio/msgserver.h"
-#include "asio/base/util.h"
+#include "asio/msgbus.h"
+#include "asio/tool/util.h"
 #include <thread>
+
+using namespace ningto;
+
+class BaseHandler : public MsgHandler
+{
+public:
+    void advise(MsgServer *server) override
+    {
+        ADVISE_HANDLER(ProtoSimple::PingPongReq, ProtoSimple::PingPongRsp, PingPong);
+        ADVISE_HANDLER(ProtoSimple::DaytimeReq, ProtoSimple::DaytimeRsp, Daytime);
+        ADVISE_HANDLER(ProtoSimple::DiscardReq, ProtoSimple::DiscardRsp, Discard);
+    }
+
+private:
+    void PingPong(ProtoSimple::PingPongReq *req, ProtoSimple::PingPongRsp *rsp)
+    {
+        rsp->set_content(req->content());
+    }
+
+    void Daytime(ProtoSimple::DaytimeReq *req, ProtoSimple::DaytimeRsp *rsp)
+    {
+        rsp->set_time(util::getFormatTime(util::currentMillisecond()));
+    }
+
+    void Discard(ProtoSimple::DiscardReq *req, ProtoSimple::DiscardRsp *rsp)
+    {
+        static std::atomic<int> s_total{ 0 };
+        s_total += req->content().size();
+        rsp->set_size(req->content().size());
+        rsp->set_total(s_total);
+    }
+};
 
 int main(int argc, char* argv[])
 {
-	util::initlog(argv[0], true);
-	
-#if 1
-	LOG(INFO) << "server start...";
-	MsgServer server(5566);
-	server.addHandleMessage(PbBase::HelloReq::descriptor()->full_name(), [&](const SessionPtr &sessionPtr, const PackagePtr &reqPtr) {
-		PbBase::HelloReq *hello = dynamic_cast<PbBase::HelloReq*>(reqPtr->msgPtr.get());
+    setting::initlog(argv[0], true);
+    setting::initEnableCompressSize();
 
-		std::shared_ptr<PbBase::HelloRsp> rspPtr(new PbBase::HelloRsp());
-		rspPtr->set_hello(hello->address());
-		sessionPtr->replyMessage(reqPtr, rspPtr);
+    LOG(INFO) << "server start...";
+    MsgServer server(5577);
+    server.addMethodHanlder(std::make_shared<BaseHandler>());
+    server.run();
+    LOG(INFO) << "server exit!!!";
 
-		PbBase::ServerInfoPub *pub = new PbBase::ServerInfoPub();
-		pub->set_hello("11111111");
-		server.publishMessage(MessagePtr(pub));
-	});
-	server.addHandleMessage(PbBase::EchoReq::descriptor()->full_name(), [&](const SessionPtr &sessionPtr, const PackagePtr &reqPtr) {
-		PbBase::EchoReq *req = static_cast<PbBase::EchoReq*>(reqPtr->msgPtr.get());
-		PbBase::EchoRsp *rsp = new PbBase::EchoRsp();
-		rsp->set_errorcode(0);
-		rsp->set_content(req->content());
-        //std::this_thread::sleep_for(std::chrono::seconds(2));
-        LOG(INFO) << "ECHO request pacSize:" << reqPtr->header.pacSize << ", last:" << req->content().substr(req->content().length() - 3) << ", id:" << reqPtr->header.msgId;
-		sessionPtr->replyMessage(reqPtr, MessagePtr(rsp));
-	});
+    //MsgBus bus(5588);
+    //bus.run();
 
-	server.run();
-#else
-	LOG(INFO) << "client start...";
-	std::vector<std::string> addressList{ "127.0.0.1:5566" };
-	MsgClient client(addressList);
-	client.addHandlePublish(PbBase::ServerInfoPub::default_instance().GetTypeName(), [](int error, const MessagePtr &msg) {
-		PbBase::ServerInfoPub *pub = static_cast<PbBase::ServerInfoPub*>(msg.get());
-		LOG(INFO) << "publish:" << pub->hello();
-	});
-	client.start();
-
-	while (1) {
-		PbBase::EchoReq *msg = new PbBase::EchoReq();
-		msg->set_content("hello");
-		client.postMessage(MessagePtr(msg), [](int error, const PackagePtr &reqMsgPtr, const PackagePtr &rspMsgPtr) {
-			if (error == 0) {
-				PbBase::EchoRsp *rsp = static_cast<PbBase::EchoRsp*>(rspMsgPtr->msgPtr.get());
-				LOG(INFO) << "response:" << rsp->content();
-			}
-		});
-		std::this_thread::sleep_for(std::chrono::seconds(1));
-	}
-#endif
-
-	while (1) { std::this_thread::sleep_for(std::chrono::seconds(1)); }
-	return 0;
+    return 0;
 }
-
